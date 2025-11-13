@@ -1,0 +1,75 @@
+services:
+  clirzy-api-gateway:
+    container_name: clirzy-api-gateway
+    image: vaross/private-projects:clirzy-api-gateway-latest
+    ports:
+      - "8000:8000"
+    depends_on:
+      - clirzy-ai-service
+      - clirzy-auth-service
+      - clirzy-payments-service
+
+  clirzy-ai-service:
+    container_name: clirzy-ai-service
+    image: vaross/private-projects:clirzy-ai-service-latest
+    ports:
+      - "8001:8001"
+
+  clirzy-auth-service:
+    container_name: clirzy-auth-service
+    image: vaross/private-projects:clirzy-auth-service-latest
+    ports:
+      - "8002:8002"
+
+  clirzy-payments-service:
+    container_name: clirzy-payments-service
+    image: vaross/private-projects:clirzy-payments-service-latest
+    ports:
+      - "8003:8003"
+
+  clirzy-nginx:
+    container_name: clirzy-nginx
+    image: nginx:1.27-alpine
+    platform: linux/amd64
+    restart: always
+    ports:
+      - 81:80
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - clirzy-network
+
+  clirzy-postgres:
+    container_name: clirzy-postgres
+    image: postgres:16-alpine
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - clirzy-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - clirzy-network
+
+  clirzy-redis:
+    image: redis:7.2
+    container_name: clirzy-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - clirzy-redis-data:/data
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    networks:
+      - clirzy-network
+
+volumes:
+  clirzy-postgres-data:
+    driver: local
+  clirzy-redis-data:
+    driver: local
+
+networks:
+  clirzy-network:
+    name: clirzy-network
+    driver: bridge
