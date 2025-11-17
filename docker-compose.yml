@@ -2,30 +2,47 @@ services:
   clirzy-api-gateway:
     container_name: clirzy-api-gateway
     image: vaross/private-projects:clirzy-api-gateway-latest
-    ports:
-      - "8000:8000"
+    volumes:
+      - ./api-gateway/:/srv/:rw
+    environment:
+      - .env
     depends_on:
-      - clirzy-ai-service
-      - clirzy-auth-service
-      - clirzy-payments-service
+      - clirzy-auth
+      - clirzy-user
+      - clirzy-ai
+      - clirzy-payments
 
-  clirzy-ai-service:
-    container_name: clirzy-ai-service
-    image: vaross/private-projects:clirzy-ai-service-latest
-    ports:
-      - "8001:8001"
+  clirzy-auth:
+    container_name: clirzy-auth
+    image: vaross/private-projects:clirzy-auth-latest
+    volumes:
+      - ./auth/:/srv/:rw
+    environment:
+      - .env
 
-  clirzy-auth-service:
-    container_name: clirzy-auth-service
-    image: vaross/private-projects:clirzy-auth-service-latest
-    ports:
-      - "8002:8002"
+  clirzy-user:
+    container_name: clirzy-user
+    image: vaross/private-projects:clirzy-user-latest
+    volumes:
+      - ./user/:/srv/:rw
+    environment:
+      - .env
 
-  clirzy-payments-service:
-    container_name: clirzy-payments-service
-    image: vaross/private-projects:clirzy-payments-service-latest
-    ports:
-      - "8003:8003"
+  clirzy-ai:
+    container_name: clirzy-ai
+    image: vaross/private-projects:clirzy-ai-latest
+    volumes:
+      - ./ai/:/srv/:rw
+    environment:
+      - .env
+
+  clirzy-payments:
+    container_name: clirzy-payments
+    image: vaross/private-projects:clirzy-payments-latest
+    volumes:
+      - ./payment/:/srv/:rw
+    environment:
+      - .env
 
   clirzy-nginx:
     container_name: clirzy-nginx
@@ -35,7 +52,7 @@ services:
     ports:
       - 81:80
     volumes:
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     networks:
       - clirzy-network
 
