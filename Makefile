@@ -18,12 +18,14 @@ help:
 	@echo "  docker.migrate.<service>.up    Run migrations UP for a service"
 	@echo "  docker.migrate.<service>.down  Run migrations DOWN for a service"
 	@echo "  migrate.<service>.create name=<migration_name>   Create new migration for a service"
+	@echo "  proto.<service>   Generate proto files for service"
 	@echo ""
 	@echo "Example usage:"
-	@echo "  make build.auth-service"
-	@echo "  make push.ai-service"
-	@echo "  make docker.migrate.auth-service.up"
-	@echo "  make migrate.auth-service.create name=create_users_table"
+	@echo "  make build.auth"
+	@echo "  make push.ai"
+	@echo "  make docker.migrate.auth.up"
+	@echo "  make migrate.auth.create name=create_users_table"
+	@echo "  make proto.auth"
 	@echo ""
 
 
@@ -66,4 +68,14 @@ docker.migrate.%.down:
 
 migrate.%.create:
 	@echo "🛠 Creating migration for $* with name: $(name)"
-	MSYS_NO_PATHCONV=1 migrate create -ext sql -dir "./$*/migrations" $(name)
+	MSYS_NO_PATHCONV=1 migrate create -ext sql -dir "./services/$*/migrations" $(name)
+
+
+# ------------------------------------------------
+# gRPC commands
+# ------------------------------------------------
+proto.%:
+	protoc -I services/$*/proto \
+	--go_out=paths=source_relative:services/$*/proto \
+	--go-grpc_out=paths=source_relative:services/$*/proto \
+	services/$*/proto/$*.proto

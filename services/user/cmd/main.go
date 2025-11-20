@@ -1,5 +1,8 @@
 package main
 
-func main() {
+import "clirzy/user/internal/app"
 
+func main() {
+	app := app.New()
+	app.Run()
 }

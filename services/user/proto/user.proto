@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package user.v1;
+
+option go_package = "clirzy/user/proto;proto";
+
+// ---------- MODELS ----------
+
+message User {
+  int64 id = 1;
+  string email = 2;
+}
+
+// ---------- CREATE USER ----------
+
+message CreateUser {
+  string email = 1;
+  string password = 2;
+}
+
+message CreateUsersRequest {
+  repeated CreateUser users = 1;
+}
+
+message CreateUsersResponse {
+  repeated User users = 1;
+}
+
+// ---------- GET USER ----------
+
+message GetUserRequest {
+  int64 id = 1;
+}
+
+// ---------- DELETE USER ----------
+
+message DeleteUserRequest {
+  int64 id = 1;
+}
+
+message DeleteUserResponse {
+  int64 id = 1;
+}
+
+// ---------- SERVICE ----------
+
+service UserService {
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+  rpc CreateUsers(CreateUsersRequest) returns (CreateUsersResponse);
+}

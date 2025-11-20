@@ -1,3 +1,3 @@
-module clirzy/payments-service
+module clirzy/payments
 
 go 1.25.0

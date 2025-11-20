@@ -1,0 +1,74 @@
+package service
+
+import (
+	"clirzy/common/utils"
+	"clirzy/user/internal/db"
+	"clirzy/user/internal/domain"
+	"context"
+)
+
+type UserService struct {
+	repo *db.UsersRepo
+}
+
+func NewUserService() *UserService {
+	return &UserService{}
+}
+
+func (s *UserService) GetUser(ctx context.Context, userId int) (*domain.User, error) {
+	user, err := s.repo.FindOneById(ctx, uint(userId))
+	if err != nil {
+		return nil, err
+	}
+
+	domainUser := db.DBToDomain(*user)
+
+	return domainUser, nil
+}
+
+func (s *UserService) CreateOne(ctx context.Context, input domain.CreateUserInput) (*domain.User, error) {
+	hashed, err := utils.HashPassword(input.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	input.Password = hashed
+
+	userModel := db.CreateUserInputToDB(input)
+
+	err = s.repo.CreateOne(ctx, &userModel)
+	if err != nil {
+		return nil, err
+	}
+
+	userDomain := db.DBToDomain(userModel)
+
+	return userDomain, nil
+}
+
+func (s *UserService) CreateMany(ctx context.Context, inputs []domain.CreateUserInput) ([]*domain.User, error) {
+	userModels := make([]db.User, len(inputs))
+
+	for i, inp := range inputs {
+		hashed, err := utils.HashPassword(inp.Password)
+		if err != nil {
+			return nil, err
+		}
+
+		inp.Password = hashed
+
+		userModels[i] = db.CreateUserInputToDB(inp)
+	}
+
+	err := s.repo.CreateMany(ctx, &userModels)
+	if err != nil {
+		return nil, err
+	}
+
+	userDomains := make([]*domain.User, len(userModels))
+	for i, model := range userModels {
+		userDomains[i] = db.DBToDomain(model)
+	}
+
+	return userDomains, nil
+}
