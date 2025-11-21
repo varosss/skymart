@@ -1,9 +1,10 @@
 package grpctransport
 
 import (
-	"clirzy/user/internal/service"
-	"clirzy/user/proto"
 	"context"
+
+	"clirzy/services/user/internal/service"
+	"clirzy/services/user/proto"
 )
 
 type GRPCHandler struct {
@@ -25,11 +26,11 @@ func (h *GRPCHandler) CreateUsers(ctx context.Context, req *proto.CreateUsersReq
 	return DomainToCreateUsersResponse(domainUsers), nil
 }
 
-func (h *GRPCHandler) GetUser(ctx context.Context, req *proto.GetUserRequest) (*proto.User, error) {
-	user, err := h.service.GetUser(ctx, int(req.Id))
+func (h *GRPCHandler) GetUserById(ctx context.Context, req *proto.GetUserByIdRequest) (*proto.UserResponse, error) {
+	user, err := h.service.GetUserById(ctx, int(req.Id))
 	if err != nil {
 		return nil, err
 	}
 
-	return DomainToProtoUser(user), nil
+	return DomainToProtoUserResponse(user), nil
 }

@@ -1,12 +1,13 @@
 package app
 
 import (
-	"clirzy/auth/internal/service"
-	"clirzy/auth/internal/transport/grpctransport"
-	"clirzy/auth/internal/transport/httptransport"
-	"clirzy/auth/proto"
-	"clirzy/common/bootstrap"
-	"clirzy/common/server"
+	"clirzy/services/auth/internal/service"
+	"clirzy/services/auth/proto"
+	"clirzy/services/auth/transport/grpctransport"
+	"clirzy/services/auth/transport/httptransport"
+
+	"clirzy/pkg/bootstrap"
+	"clirzy/pkg/server"
 
 	"google.golang.org/grpc"
 )
@@ -15,9 +16,7 @@ type App struct {
 	bootstrap *bootstrap.Server
 }
 
-func New() *App {
-	authService := service.NewAuthService()
-
+func New(authService *service.AuthService) *App {
 	grpcHandler := grpctransport.NewGRPCHandler(authService)
 	httpHandler := httptransport.NewHTTPHandler(authService)
 

@@ -4,17 +4,16 @@ package user.v1;
 
 option go_package = "clirzy/user/proto;proto";
 
-// ---------- MODELS ----------
-
-message User {
+message UserResponse {
   int64 id = 1;
-  string email = 2;
+  string username = 2;
+  string passwordHash = 3;
 }
 
 // ---------- CREATE USER ----------
 
 message CreateUser {
-  string email = 1;
+  string username = 1;
   string password = 2;
 }
 
@@ -23,13 +22,17 @@ message CreateUsersRequest {
 }
 
 message CreateUsersResponse {
-  repeated User users = 1;
+  repeated UserResponse users = 1;
 }
 
 // ---------- GET USER ----------
 
-message GetUserRequest {
+message GetUserByIdRequest {
   int64 id = 1;
+}
+
+message GetUserByUsernameRequest {
+  string username = 1;
 }
 
 // ---------- DELETE USER ----------
@@ -47,4 +50,6 @@ message DeleteUserResponse {
 service UserService {
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
   rpc CreateUsers(CreateUsersRequest) returns (CreateUsersResponse);
+  rpc GetUserById(GetUserByIdRequest) returns (UserResponse);
+  rpc GetUserByUsername(GetUserByUsernameRequest) returns (UserResponse);
 }

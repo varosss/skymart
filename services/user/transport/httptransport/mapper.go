@@ -1,10 +1,10 @@
 package httptransport
 
-import "clirzy/user/internal/domain"
+import "clirzy/services/user/internal/domain"
 
 func CreateRequestToDomain(req CreateUserRequest) domain.CreateUserInput {
 	return domain.CreateUserInput{
-		Email:    req.Email,
+		Username: req.Username,
 		Password: req.Password,
 	}
 }
@@ -18,17 +18,17 @@ func CreateUsersBatchRequestToDomain(req CreateUsersBatchRequest) []domain.Creat
 	return inputs
 }
 
-func DomainToCreateUserResponse(domain *domain.User) UserResponse {
+func DomainToUserResponse(domain *domain.User) UserResponse {
 	return UserResponse{
-		Id:    domain.ID,
-		Email: domain.Email,
+		Id:       domain.ID,
+		Username: domain.Username,
 	}
 }
 
 func DomainToCreateUsersBatchResponse(domainUsers []*domain.User) CreateUsersBatchResponse {
 	users := make([]UserResponse, len(domainUsers))
 	for i, u := range domainUsers {
-		users[i] = DomainToCreateUserResponse(u)
+		users[i] = DomainToUserResponse(u)
 	}
 
 	return CreateUsersBatchResponse{Users: users}

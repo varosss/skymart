@@ -5,13 +5,13 @@ type ErrorUsersResponse struct {
 }
 
 type CreateUserRequest struct {
-	Email    string `json:"email" binding:"required,email"`
+	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
 type UserResponse struct {
-	Id    uint   `json:"id" binding:"required"`
-	Email string `json:"email" binding:"required,email"`
+	Id       uint   `json:"id" binding:"required"`
+	Username string `json:"username" binding:"required"`
 }
 
 type CreateUsersBatchRequest struct {

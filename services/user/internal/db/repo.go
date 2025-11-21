@@ -23,6 +23,15 @@ func (r *UsersRepo) FindOneById(ctx context.Context, id uint) (*User, error) {
 	return &user, nil
 }
 
+func (r *UsersRepo) FindOneByUsername(ctx context.Context, username string) (*User, error) {
+	user, err := gorm.G[User](r.db).Where("username = ?", username).First(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func (r *UsersRepo) CreateOne(ctx context.Context, user *User) error {
 	err := gorm.G[User](r.db).Create(ctx, user)
 	if err != nil {

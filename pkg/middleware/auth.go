@@ -1,9 +1,10 @@
 package middleware
 
 import (
-	"clirzy/common/utils"
 	"net/http"
 	"strings"
+
+	"clirzy/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"

@@ -3,18 +3,40 @@ package service
 import (
 	"context"
 	"errors"
+
+	userclient "clirzy/pkg/client/user"
+	"clirzy/pkg/utils"
+	"clirzy/services/auth/internal/domain"
 )
 
-// AuthService реализует всю логику авторизации
-type AuthService struct{}
-
-func NewAuthService() *AuthService {
-	return &AuthService{}
+type AuthService struct {
+	userClient *userclient.Client
 }
 
-func (s *AuthService) Login(ctx context.Context, email, password string) (string, error) {
-	if email == "test@test.com" && password == "123" {
-		return "hardcoded_token", nil
+func NewAuthService(userClient *userclient.Client) *AuthService {
+	return &AuthService{userClient: userClient}
+}
+
+func (s *AuthService) Register(ctx context.Context, input domain.AuthInput) (*domain.User, error) {
+	createResp, err := s.userClient.CreateUser(ctx, input.Username, input.Password)
+	if err != nil {
+		return nil, err
 	}
-	return "", errors.New("invalid credentials")
+
+	user := createResp.Users[0]
+
+	return &domain.User{Id: uint(user.Id), Username: user.Username}, nil
+}
+
+func (s *AuthService) Login(ctx context.Context, input domain.AuthInput) (*domain.LoginOutput, error) {
+	user, err := s.userClient.GetUserByUsername(ctx, input.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = utils.ComparePassword(user.PasswordHash, input.Password); err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	return &domain.LoginOutput{AccessToken: "", RefreshToken: ""}, nil
 }

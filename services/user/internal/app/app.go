@@ -1,15 +1,15 @@
 package app
 
 import (
-	"clirzy/common/bootstrap"
-	"clirzy/common/consts"
-	"clirzy/common/middleware"
-	"clirzy/common/server"
-	"clirzy/common/utils"
-	"clirzy/user/internal/service"
-	"clirzy/user/internal/transport/grpctransport"
-	"clirzy/user/internal/transport/httptransport"
-	"clirzy/user/proto"
+	"clirzy/pkg/bootstrap"
+	"clirzy/pkg/consts"
+	"clirzy/pkg/middleware"
+	"clirzy/pkg/server"
+	"clirzy/pkg/utils"
+	"clirzy/services/user/internal/service"
+	"clirzy/services/user/proto"
+	"clirzy/services/user/transport/grpctransport"
+	"clirzy/services/user/transport/httptransport"
 
 	"google.golang.org/grpc"
 )
@@ -32,7 +32,7 @@ func New() *App {
 
 	httpSrv := server.NewHTTPServer(":8080")
 	httpSrv.AddRoute("POST", "/users", httpHandler.CreateUsers)
-	httpSrv.AddRoute("GET", "/users/:id", authMiddleware, httpHandler.GetUser)
+	httpSrv.AddRoute("GET", "/users/:id", authMiddleware, httpHandler.GetUserById)
 
 	bootsrapServerInst := bootstrap.NewServer(
 		bootstrap.WithHTTP(httpSrv),

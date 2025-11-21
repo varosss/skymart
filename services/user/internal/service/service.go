@@ -1,10 +1,12 @@
 package service
 
 import (
-	"clirzy/common/utils"
-	"clirzy/user/internal/db"
-	"clirzy/user/internal/domain"
 	"context"
+
+	"clirzy/services/user/internal/db"
+	"clirzy/services/user/internal/domain"
+
+	"clirzy/pkg/utils"
 )
 
 type UserService struct {
@@ -15,8 +17,19 @@ func NewUserService() *UserService {
 	return &UserService{}
 }
 
-func (s *UserService) GetUser(ctx context.Context, userId int) (*domain.User, error) {
+func (s *UserService) GetUserById(ctx context.Context, userId int) (*domain.User, error) {
 	user, err := s.repo.FindOneById(ctx, uint(userId))
+	if err != nil {
+		return nil, err
+	}
+
+	domainUser := db.DBToDomain(*user)
+
+	return domainUser, nil
+}
+
+func (s *UserService) GetUserByUsername(ctx context.Context, username string) (*domain.User, error) {
+	user, err := s.repo.FindOneByUsername(ctx, username)
 	if err != nil {
 		return nil, err
 	}

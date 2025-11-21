@@ -1,9 +1,10 @@
 package httptransport
 
 import (
-	"clirzy/user/internal/service"
 	"net/http"
 	"strconv"
+
+	"clirzy/services/user/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,7 +39,7 @@ func (h *HTTPHandler) CreateUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, createUsersResponse)
 }
 
-func (h *HTTPHandler) GetUser(c *gin.Context) {
+func (h *HTTPHandler) GetUserById(c *gin.Context) {
 	userIdToGetStr := c.Param("id")
 	if userIdToGetStr == "" {
 		c.JSON(http.StatusBadRequest, ErrorUsersResponse{Error: "id param is required"})
@@ -53,7 +54,7 @@ func (h *HTTPHandler) GetUser(c *gin.Context) {
 		return
 	}
 
-	user, err := h.service.GetUser(c.Request.Context(), userIdToGet)
+	user, err := h.service.GetUserById(c.Request.Context(), userIdToGet)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, ErrorUsersResponse{Error: err.Error()})
 
@@ -66,5 +67,5 @@ func (h *HTTPHandler) GetUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusBadRequest, UserResponse{Id: user.ID, Email: user.Email})
+	c.JSON(http.StatusBadRequest, DomainToUserResponse(user))
 }

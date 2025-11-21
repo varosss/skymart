@@ -1,6 +1,6 @@
 package main
 
-import "clirzy/user/internal/app"
+import "clirzy/services/user/internal/app"
 
 func main() {
 	app := app.New()
