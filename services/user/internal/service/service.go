@@ -3,18 +3,17 @@ package service
 import (
 	"context"
 
+	"clirzy/pkg/security"
 	"clirzy/services/user/internal/db"
 	"clirzy/services/user/internal/domain"
-
-	"clirzy/pkg/utils"
 )
 
 type UserService struct {
 	repo *db.UsersRepo
 }
 
-func NewUserService() *UserService {
-	return &UserService{}
+func NewUserService(repo *db.UsersRepo) *UserService {
+	return &UserService{repo: repo}
 }
 
 func (s *UserService) GetUserById(ctx context.Context, userId int) (*domain.User, error) {
@@ -40,7 +39,7 @@ func (s *UserService) GetUserByUsername(ctx context.Context, username string) (*
 }
 
 func (s *UserService) CreateOne(ctx context.Context, input domain.CreateUserInput) (*domain.User, error) {
-	hashed, err := utils.HashPassword(input.Password)
+	hashed, err := security.HashPassword(input.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +62,7 @@ func (s *UserService) CreateMany(ctx context.Context, inputs []domain.CreateUser
 	userModels := make([]db.User, len(inputs))
 
 	for i, inp := range inputs {
-		hashed, err := utils.HashPassword(inp.Password)
+		hashed, err := security.HashPassword(inp.Password)
 		if err != nil {
 			return nil, err
 		}

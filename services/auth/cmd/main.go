@@ -1,23 +1,25 @@
 package main
 
 import (
-	"log"
-
-	userclient "clirzy/pkg/client/user"
+	"clirzy/pkg/config"
 	"clirzy/services/auth/internal/app"
-	"clirzy/services/auth/internal/service"
+	"log"
 )
 
 func main() {
-	userClient, err := userclient.New("user:50051")
+	cfg, err := config.Load()
 	if err != nil {
-		log.Fatalf("got fatal error: %s", err.Error())
+		log.Fatal("couldn't load app config")
 
 		return
 	}
 
-	authService := service.NewAuthService(userClient)
-	app := app.New(authService)
+	app, err := app.New(cfg)
+	if err != nil {
+		log.Fatalf("couldn't start app: %s", err.Error())
+
+		return
+	}
 
 	app.Run()
 }

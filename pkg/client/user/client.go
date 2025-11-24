@@ -3,9 +3,10 @@ package userclient
 import (
 	"context"
 
-	userpb "clirzy/services/user/proto" // путь поправишь
+	userpb "clirzy/services/user/proto"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type Client struct {
@@ -14,9 +15,7 @@ type Client struct {
 }
 
 func New(address string) (*Client, error) {
-	var opts []grpc.DialOption
-
-	conn, err := grpc.NewClient(address, opts...)
+	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
@@ -40,5 +39,11 @@ func (c *Client) CreateUser(ctx context.Context, username, password string) (*us
 func (c *Client) GetUserByUsername(ctx context.Context, username string) (*userpb.UserResponse, error) {
 	return c.remote.GetUserByUsername(ctx, &userpb.GetUserByUsernameRequest{
 		Username: username,
+	})
+}
+
+func (c *Client) GetUserById(ctx context.Context, id uint) (*userpb.UserResponse, error) {
+	return c.remote.GetUserById(ctx, &userpb.GetUserByIdRequest{
+		Id: int64(id),
 	})
 }

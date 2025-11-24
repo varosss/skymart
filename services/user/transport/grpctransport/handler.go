@@ -34,3 +34,12 @@ func (h *GRPCHandler) GetUserById(ctx context.Context, req *proto.GetUserByIdReq
 
 	return DomainToProtoUserResponse(user), nil
 }
+
+func (h *GRPCHandler) GetUserByUsername(ctx context.Context, req *proto.GetUserByUsernameRequest) (*proto.UserResponse, error) {
+	user, err := h.service.GetUserByUsername(ctx, req.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	return DomainToProtoUserResponse(user), nil
+}

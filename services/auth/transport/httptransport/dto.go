@@ -18,3 +18,7 @@ type RegisterResponse struct {
 	Id       uint
 	Username string
 }
+
+type RefreshRequest struct {
+	RefreshToken string
+}

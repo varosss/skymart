@@ -1,7 +1,7 @@
 REGISTRY := vaross/private-projects
 BUILD_DATE := $(shell date +%Y_%m_%d_%H_%M_%S)
 
-SERVICES := auth user ai api-gateway payment
+SERVICES := auth user
 
 # ------------------------------------------------
 # Help command
@@ -37,9 +37,12 @@ build.all: $(SERVICES:%=build.%)
 build.%:
 	@echo "🚀 Building service: $*"
 	@docker build \
-		-f ./services/$*/Dockerfile . \
+		-f ./services/$*/Dockerfile \
+		--build-arg SERVICE=$* \
 		-t $(REGISTRY):clirzy-$*-$(BUILD_DATE) \
 		-t $(REGISTRY):clirzy-$*-latest \
+		.
+
 
 clean:
 	@docker rmi -f $(shell docker images -q $(REGISTRY):clirzy*) || true
@@ -60,11 +63,11 @@ push.all: $(SERVICES:%=push.%)
 # ------------------------------------------------
 docker.migrate.%.up:
 	@echo "⬆️ Running migrations UP for service: $*"
-	MSYS_NO_PATHCONV=1 docker compose exec $* sh -c 'migrate -path "$$MIGRATIONS_PATH" -database "$$POSTGRES_URL" up'
+	MSYS_NO_PATHCONV=1 docker compose exec clirzy-$* sh -c 'migrate -path "$$MIGRATIONS_PATH" -database "$$POSTGRES_URL" up'
 
 docker.migrate.%.down:
 	@echo "⬇️ Running migrations DOWN for service: $*"
-	MSYS_NO_PATHCONV=1 docker compose exec $* sh -c 'migrate -path "$$MIGRATIONS_PATH" -database "$$POSTGRES_URL" down'
+	MSYS_NO_PATHCONV=1 docker compose exec clirzy-$* sh -c 'migrate -path "$$MIGRATIONS_PATH" -database "$$POSTGRES_URL" down'
 
 migrate.%.create:
 	@echo "🛠 Creating migration for $* with name: $(name)"

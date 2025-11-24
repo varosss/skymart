@@ -1,8 +1,25 @@
 package main
 
-import "clirzy/services/user/internal/app"
+import (
+	"clirzy/pkg/config"
+	"clirzy/services/user/internal/app"
+	"log"
+)
 
 func main() {
-	app := app.New()
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatal("couldn't load app config")
+
+		return
+	}
+
+	app, err := app.New(cfg)
+	if err != nil {
+		log.Fatalf("couldn't start app: %s", err.Error())
+
+		return
+	}
+
 	app.Run()
 }

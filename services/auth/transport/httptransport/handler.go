@@ -55,3 +55,23 @@ func (h *HTTPHandler) Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, resp)
 }
+
+func (h *HTTPHandler) Refresh(c *gin.Context) {
+	var req RefreshRequest
+
+	err := c.ShouldBind(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ErrorAuthResponse{Error: err.Error()})
+
+		return
+	}
+
+	output, err := h.service.Refresh(c.Request.Context(), req.RefreshToken)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ErrorAuthResponse{Error: err.Error()})
+	}
+
+	resp := domainToLoginResponse(output)
+
+	c.JSON(http.StatusOK, resp)
+}

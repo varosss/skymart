@@ -12,7 +12,7 @@ func LoginRequestToDomain(req *proto.LoginRequest) domain.AuthInput {
 	}
 }
 
-func domainToLoginResponse(domain domain.LoginOutput) *proto.LoginResponse {
+func domainToLoginResponse(domain domain.AuthPair) *proto.LoginResponse {
 	return &proto.LoginResponse{
 		AccessToken:  domain.AccessToken,
 		RefreshToken: domain.RefreshToken,

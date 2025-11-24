@@ -10,8 +10,7 @@ type User struct {
 	Username string
 }
 
-type LoginOutput struct {
+type AuthPair struct {
 	AccessToken  string
 	RefreshToken string
-	User         User
 }

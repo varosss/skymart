@@ -1,48 +1,52 @@
 services:
-  clirzy-api-gateway:
-    container_name: clirzy-api-gateway
-    image: vaross/private-projects:clirzy-api-gateway-latest
-    volumes:
-      - ./api-gateway/:/srv/:rw
-    environment:
-      - .env
-    depends_on:
-      - clirzy-auth
-      - clirzy-user
-      - clirzy-ai
-      - clirzy-payments
+  # clirzy-api-gateway:
+  #   container_name: clirzy-api-gateway
+  #   image: vaross/private-projects:clirzy-api-gateway-latest
+  #   volumes:
+  #     - ./api-gateway/:/srv/:rw
+  #   environment:
+  #     - .env
+  #   depends_on:
+  #     - clirzy-auth
+  #     - clirzy-user
+  #     - clirzy-ai
+  #     - clirzy-payments
 
   clirzy-auth:
     container_name: clirzy-auth
     image: vaross/private-projects:clirzy-auth-latest
-    volumes:
-      - ./auth/:/srv/:rw
-    environment:
+    env_file:
       - .env
-
+    depends_on:
+      - clirzy-postgres
+    networks:
+      - clirzy-network
+  
   clirzy-user:
     container_name: clirzy-user
     image: vaross/private-projects:clirzy-user-latest
-    volumes:
-      - ./user/:/srv/:rw
-    environment:
+    env_file:
       - .env
+    depends_on:
+      - clirzy-postgres
+    networks:
+      - clirzy-network
 
-  clirzy-ai:
-    container_name: clirzy-ai
-    image: vaross/private-projects:clirzy-ai-latest
-    volumes:
-      - ./ai/:/srv/:rw
-    environment:
-      - .env
+  # clirzy-ai:
+  #   container_name: clirzy-ai
+  #   image: vaross/private-projects:clirzy-ai-latest
+  #   volumes:
+  #     - ./ai/:/srv/:rw
+  #   environment:
+  #     - .env
 
-  clirzy-payments:
-    container_name: clirzy-payments
-    image: vaross/private-projects:clirzy-payments-latest
-    volumes:
-      - ./payment/:/srv/:rw
-    environment:
-      - .env
+  # clirzy-payments:
+  #   container_name: clirzy-payments
+  #   image: vaross/private-projects:clirzy-payments-latest
+  #   volumes:
+  #     - ./payment/:/srv/:rw
+  #   environment:
+  #     - .env
 
   clirzy-nginx:
     container_name: clirzy-nginx

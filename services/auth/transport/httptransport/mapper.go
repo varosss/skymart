@@ -9,7 +9,7 @@ func AuthRequestToDomain(req *AuthRequest) domain.AuthInput {
 	}
 }
 
-func domainToLoginResponse(domain *domain.LoginOutput) LoginResponse {
+func domainToLoginResponse(domain *domain.AuthPair) LoginResponse {
 	return LoginResponse{
 		AccessToken:  domain.AccessToken,
 		RefreshToken: domain.RefreshToken,
