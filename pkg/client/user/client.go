@@ -3,7 +3,7 @@ package userclient
 import (
 	"context"
 
-	userpb "clirzy/services/user/proto"
+	userpb "clirzy/user/proto"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
