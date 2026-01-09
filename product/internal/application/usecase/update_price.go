@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	aport "clirzy/product/internal/application/port"
 	"clirzy/product/internal/application/service"
 	"clirzy/product/internal/domain"
 	"clirzy/product/internal/domain/port"
@@ -16,27 +17,33 @@ type UpdateProductPriceCommand struct {
 }
 
 type UpdateProductPriceUseCase struct {
-	access   *service.ProductAccessService
-	products port.ProductsRepo
+	access    *service.ProductAccessService
+	products  port.ProductsRepo
+	publisher aport.EventPublisher
 }
 
 func NewUpdateProductPriceUseCase(
 	access *service.ProductAccessService,
 	products port.ProductsRepo,
+	publisher aport.EventPublisher,
 ) *UpdateProductPriceUseCase {
-	return &UpdateProductPriceUseCase{access, products}
+	return &UpdateProductPriceUseCase{
+		access:    access,
+		products:  products,
+		publisher: publisher,
+	}
 }
 
 func (uc *UpdateProductPriceUseCase) Execute(
 	ctx context.Context,
 	cmd UpdateProductPriceCommand,
 ) error {
-	sellerID, err := valueobject.ToSellerID(cmd.SellerID)
+	sellerID, err := valueobject.ParseSellerID(cmd.SellerID)
 	if err != nil {
 		return domain.ErrInvalidSellerID
 	}
 
-	productID, err := valueobject.ToProductID(cmd.ProductID)
+	productID, err := valueobject.ParseProductID(cmd.ProductID)
 	if err != nil {
 		return domain.ErrInvalidProductID
 	}
@@ -51,5 +58,9 @@ func (uc *UpdateProductPriceUseCase) Execute(
 		return err
 	}
 
-	return uc.products.Save(ctx, product)
+	if err := uc.products.Save(ctx, product); err != nil {
+		return err
+	}
+
+	return uc.publisher.Publish(product.PullEvents())
 }

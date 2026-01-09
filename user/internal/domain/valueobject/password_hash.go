@@ -11,3 +11,7 @@ func NewPasswordHash(hash string) (PasswordHash, error) {
 
 	return PasswordHash(hash), nil
 }
+
+func (hash PasswordHash) String() string {
+	return string(hash)
+}

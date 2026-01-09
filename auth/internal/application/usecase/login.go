@@ -21,12 +21,30 @@ type LoginResult struct {
 }
 
 type LoginUseCase struct {
-	users         aport.UserService
+	users         aport.UserGateway
 	passwords     port.PasswordVerifier
 	refreshTokens port.RefreshTokensRepo
 	signer        port.TokenSigner
 	clock         port.Clock
 	refreshTTL    time.Duration
+}
+
+func NewLoginUseCase(
+	users aport.UserGateway,
+	passwords port.PasswordVerifier,
+	refreshTokens port.RefreshTokensRepo,
+	signer port.TokenSigner,
+	clock port.Clock,
+	refreshTTL time.Duration,
+) *LoginUseCase {
+	return &LoginUseCase{
+		users:         users,
+		passwords:     passwords,
+		refreshTokens: refreshTokens,
+		signer:        signer,
+		clock:         clock,
+		refreshTTL:    refreshTTL,
+	}
 }
 
 func (uc *LoginUseCase) Execute(
@@ -44,7 +62,7 @@ func (uc *LoginUseCase) Execute(
 
 	now := uc.clock.Now()
 
-	userID, err := valueobject.ToUserID(user.ID)
+	userID, err := valueobject.ParseUserID(user.ID)
 	if err != nil {
 		return nil, err
 	}

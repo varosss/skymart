@@ -15,12 +15,12 @@ type GetOrCreateBuyerCommand struct {
 
 type GetOrCreateBuyerUseCase struct {
 	buyers port.BuyersRepo
-	users  aport.UserService
+	users  aport.UserQuery
 }
 
 func NewGetOrCreateBuyerUseCase(
 	buyers port.BuyersRepo,
-	users aport.UserService,
+	users aport.UserQuery,
 ) *GetOrCreateBuyerUseCase {
 	return &GetOrCreateBuyerUseCase{
 		buyers: buyers,
@@ -29,7 +29,7 @@ func NewGetOrCreateBuyerUseCase(
 }
 
 func (uc *GetOrCreateBuyerUseCase) Execute(ctx context.Context, cmd GetOrCreateBuyerCommand) (*entity.Buyer, error) {
-	userID, err := valueobject.ToUserID(cmd.UserID)
+	userID, err := valueobject.ParseUserID(cmd.UserID)
 	if err != nil {
 		return nil, domain.ErrInvalidUserID
 	}

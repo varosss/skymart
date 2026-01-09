@@ -4,49 +4,25 @@ package auth.v1;
 
 option go_package = "clirzy/services/auth/proto;proto";
 
-message UserResponse {
-  int64 id = 1;
-  string username = 2;
+// ---------- COMMON ----------
+
+message User {
+  string id = 1;
 }
 
-// ---------- REGISTER ----------
+// ---------- VALIDATE ACCESS TOKEN ----------
 
-message RegisterRequest {
-  string username = 1;
-  string password = 2;
-}
-
-message RegisterResponse {
-  UserResponse user = 1;
-}
-
-// ---------- LOGIN ----------
-
-message LoginRequest {
-  string username = 1;
-  string password = 2;
-}
-
-message LoginResponse {
+message ValidateAccessTokenRequest {
   string access_token = 1;
-  string refresh_token = 2; // опционально, можно убрать
 }
 
-// ---------- AUTH TOKEN VALIDATION ----------
-
-message AuthRequest {
-  string token = 1;
-}
-
-message AuthResponse {
-  bool valid = 1;
-  UserResponse user = 2;
+message ValidateAccessTokenResponse {
+  string user_id = 1;
 }
 
 // ---------- SERVICE ----------
 
 service AuthService {
-  rpc Register(RegisterRequest) returns (RegisterResponse);
-  rpc Login(LoginRequest) returns (LoginResponse);
-  rpc Auth(AuthRequest) returns (AuthResponse);
+  rpc ValidateAccessToken(ValidateAccessTokenRequest)
+      returns (ValidateAccessTokenResponse);
 }

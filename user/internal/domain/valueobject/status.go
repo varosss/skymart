@@ -7,3 +7,7 @@ const (
 	StatusBlocked Status = "blocked"
 	StatusDeleted Status = "deleted"
 )
+
+func (status Status) String() string {
+	return string(status)
+}

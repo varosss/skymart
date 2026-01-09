@@ -66,7 +66,10 @@ func (p *Product) Unpublish() error {
 	if p.status != valueobject.StatusPublished {
 		return domain.ErrInvalidProductStatusTransition
 	}
+
 	p.status = valueobject.StatusUnpublished
+	p.addEvent(event.NewProductUnpublished(p.id, p.sellerID))
+
 	return nil
 }
 
@@ -74,7 +77,10 @@ func (p *Product) Archive() error {
 	if p.status == valueobject.StatusArchived {
 		return domain.ErrInvalidProductStatusTransition
 	}
+
 	p.status = valueobject.StatusArchived
+	p.addEvent(event.NewProductArchived(p.id, p.sellerID))
+
 	return nil
 }
 
@@ -88,6 +94,9 @@ func (p *Product) UpdateInfo(title, description string) error {
 
 	p.title = title
 	p.description = description
+
+	p.addEvent(event.NewProductInfoUpdated(p.id, p.sellerID, title, description))
+
 	return nil
 }
 
@@ -100,6 +109,8 @@ func (p *Product) UpdatePrice(newPrice valueobject.Money) error {
 	}
 
 	p.price = newPrice
+	p.addEvent(event.NewProductPriceUpdated(p.id, p.sellerID, newPrice))
+
 	return nil
 }
 

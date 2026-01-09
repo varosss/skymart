@@ -15,20 +15,23 @@ type PublishProductCommand struct {
 }
 
 type PublishProductUseCase struct {
-	sellers  aport.SellerService
-	products port.ProductsRepo
-	access   *service.ProductAccessService
+	sellers   aport.SellerQuery
+	products  port.ProductsRepo
+	access    *service.ProductAccessService
+	publisher aport.EventPublisher
 }
 
 func NewPublishProductUseCase(
-	sellers aport.SellerService,
+	sellers aport.SellerQuery,
 	products port.ProductsRepo,
 	access *service.ProductAccessService,
+	publisher aport.EventPublisher,
 ) *PublishProductUseCase {
 	return &PublishProductUseCase{
-		sellers:  sellers,
-		products: products,
-		access:   access,
+		sellers:   sellers,
+		products:  products,
+		access:    access,
+		publisher: publisher,
 	}
 }
 
@@ -36,12 +39,12 @@ func (uc *PublishProductUseCase) Execute(
 	ctx context.Context,
 	cmd PublishProductCommand,
 ) error {
-	sellerID, err := valueobject.ToSellerID(cmd.SellerID)
+	sellerID, err := valueobject.ParseSellerID(cmd.SellerID)
 	if err != nil {
 		return domain.ErrInvalidSellerID
 	}
 
-	productID, err := valueobject.ToProductID(cmd.ProductID)
+	productID, err := valueobject.ParseProductID(cmd.ProductID)
 	if err != nil {
 		return domain.ErrInvalidProductID
 	}
@@ -55,5 +58,9 @@ func (uc *PublishProductUseCase) Execute(
 		return err
 	}
 
-	return uc.products.Save(ctx, product)
+	if err := uc.products.Save(ctx, product); err != nil {
+		return err
+	}
+
+	return uc.publisher.Publish(product.PullEvents())
 }

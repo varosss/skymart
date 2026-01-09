@@ -18,18 +18,20 @@ type CreateProductCommand struct {
 }
 
 type CreateProductUseCase struct {
-	sellers   aport.SellerService
+	sellers   aport.SellerQuery
 	products  port.ProductsRepo
 	publisher aport.EventPublisher
 }
 
 func NewCreateProductUseCase(
-	sellers aport.SellerService,
+	sellers aport.SellerQuery,
 	products port.ProductsRepo,
+	publisher aport.EventPublisher,
 ) *CreateProductUseCase {
 	return &CreateProductUseCase{
-		sellers:  sellers,
-		products: products,
+		sellers:   sellers,
+		products:  products,
+		publisher: publisher,
 	}
 }
 
@@ -38,7 +40,7 @@ func (uc *CreateProductUseCase) Execute(
 	cmd CreateProductCommand,
 ) (valueobject.ProductID, error) {
 
-	sellerID, err := valueobject.ToSellerID(cmd.SellerID)
+	sellerID, err := valueobject.ParseSellerID(cmd.SellerID)
 	if err != nil {
 		return "", domain.ErrInvalidSellerID
 	}

@@ -8,7 +8,7 @@ func NewPaymentID() PaymentID {
 	return PaymentID(uuid.NewString())
 }
 
-func ToPaymentID(id string) (PaymentID, error) {
+func ParsePaymentID(id string) (PaymentID, error) {
 	parsedUUID, err := uuid.Parse(id)
 	if err != nil {
 		return "", err

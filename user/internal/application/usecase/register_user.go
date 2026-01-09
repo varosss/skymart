@@ -19,7 +19,11 @@ type RegisterUserUseCase struct {
 	clock     port.Clock
 }
 
-func NewRegisterUserUseCase(users port.UsersRepo, passwords port.PasswordHasher, clock port.Clock) *RegisterUserUseCase {
+func NewRegisterUserUseCase(
+	users port.UsersRepo,
+	passwords port.PasswordHasher,
+	clock port.Clock,
+) *RegisterUserUseCase {
 	return &RegisterUserUseCase{
 		users:     users,
 		passwords: passwords,
@@ -31,18 +35,18 @@ func (uc *RegisterUserUseCase) Execute(
 	ctx context.Context,
 	cmd RegisterUserCommand,
 ) (*entity.User, error) {
-	if uc.users.ExistsByEmail(ctx, cmd.Email) {
+	email, err := valueobject.NewEmail(cmd.Email)
+	if err != nil {
+		return nil, domain.ErrInvalidEmail
+	}
+
+	if uc.users.ExistsByEmail(ctx, email) {
 		return nil, domain.ErrEmailAlreadyRegistered
 	}
 
 	hash, err := uc.passwords.Hash(cmd.Password)
 	if err != nil {
 		return nil, err
-	}
-
-	email, err := valueobject.NewEmail(cmd.Email)
-	if err != nil {
-		return nil, domain.ErrInvalidEmail
 	}
 
 	passwordHash, err := valueobject.NewPasswordHash(hash)

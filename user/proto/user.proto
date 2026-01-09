@@ -4,52 +4,32 @@ package user.v1;
 
 option go_package = "clirzy/services/user/proto;proto";
 
-message UserResponse {
-  int64 id = 1;
-  string username = 2;
-  string passwordHash = 3;
+// ----------- DTO -----------
+
+message User {
+  string id = 1;
+  string email = 2;
+  string password_hash = 3;
 }
 
-// ---------- CREATE USER ----------
+// ----------- QUERY -----------
 
-message CreateUser {
-  string username = 1;
+message GetUserByEmailRequest {
+  string email = 1;
+}
+
+message RegisterUserRequest {
+  string email = 1;
   string password = 2;
 }
 
-message CreateUsersRequest {
-  repeated CreateUser users = 1;
+message RegisterUserResponse {
+  string user_id = 1;
 }
 
-message CreateUsersResponse {
-  repeated UserResponse users = 1;
-}
-
-// ---------- GET USER ----------
-
-message GetUserByIdRequest {
-  int64 id = 1;
-}
-
-message GetUserByUsernameRequest {
-  string username = 1;
-}
-
-// ---------- DELETE USER ----------
-
-message DeleteUserRequest {
-  int64 id = 1;
-}
-
-message DeleteUserResponse {
-  int64 id = 1;
-}
-
-// ---------- SERVICE ----------
+// ----------- SERVICE -----------
 
 service UserService {
-  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
-  rpc CreateUsers(CreateUsersRequest) returns (CreateUsersResponse);
-  rpc GetUserById(GetUserByIdRequest) returns (UserResponse);
-  rpc GetUserByUsername(GetUserByUsernameRequest) returns (UserResponse);
+  rpc GetUserByEmail(GetUserByEmailRequest) returns (User);
+  rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
 }

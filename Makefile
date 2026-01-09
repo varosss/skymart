@@ -37,7 +37,7 @@ build.all: $(SERVICES:%=build.%)
 build.%:
 	@echo "🚀 Building service: $*"
 	@docker build \
-		-f ./services/$*/Dockerfile \
+		-f ./$*/Dockerfile \
 		--build-arg SERVICE=$* \
 		-t $(REGISTRY):clirzy-$*-$(BUILD_DATE) \
 		-t $(REGISTRY):clirzy-$*-latest \

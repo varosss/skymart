@@ -8,7 +8,7 @@ func NewBuyerID() BuyerID {
 	return BuyerID(uuid.NewString())
 }
 
-func ToBuyerID(id string) (BuyerID, error) {
+func ParseBuyerID(id string) (BuyerID, error) {
 	parsedUUID, err := uuid.Parse(id)
 	if err != nil {
 		return "", err

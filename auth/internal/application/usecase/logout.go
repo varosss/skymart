@@ -11,8 +11,18 @@ type LogoutCommand struct {
 }
 
 type LogoutUseCase struct {
-	verifier    port.TokenVerifier
-	refreshRepo port.RefreshTokensRepo
+	verifier      port.TokenVerifier
+	refreshTokens port.RefreshTokensRepo
+}
+
+func NewLogoutUseCase(
+	verifier port.TokenVerifier,
+	refreshTokens port.RefreshTokensRepo,
+) *LogoutUseCase {
+	return &LogoutUseCase{
+		verifier:      verifier,
+		refreshTokens: refreshTokens,
+	}
 }
 
 func (uc *LogoutUseCase) Execute(
@@ -25,5 +35,5 @@ func (uc *LogoutUseCase) Execute(
 		return domain.ErrInvalidToken
 	}
 
-	return uc.refreshRepo.Revoke(ctx, tokenID)
+	return uc.refreshTokens.Revoke(ctx, tokenID)
 }

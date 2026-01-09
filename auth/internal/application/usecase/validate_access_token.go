@@ -19,6 +19,12 @@ type ValidateAccessTokenUseCase struct {
 	verifier port.TokenVerifier
 }
 
+func NewValidateAccessTokenUseCase(verifier port.TokenVerifier) *ValidateAccessTokenUseCase {
+	return &ValidateAccessTokenUseCase{
+		verifier: verifier,
+	}
+}
+
 func (uc *ValidateAccessTokenUseCase) Execute(
 	ctx context.Context,
 	cmd ValidateAccessTokenCommand,
