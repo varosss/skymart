@@ -48,8 +48,9 @@ func BuildApp(cfg *config.Config) (*pkgapp.Application, error) {
 
 	uc := BuildUseCases(
 		grpcclient.NewUserServiceClient(userServiceConn),
+		repo.NewUserRoleGormRepo(conn),
 		security.NewBcryptPasswordVerifier(),
-		repo.NewRefreshTokensGormRepo(conn),
+		repo.NewRefreshTokenGormRepo(conn),
 		auth.NewJWTSigner(
 			privateKey,
 			cfg.JWT.Issuer,

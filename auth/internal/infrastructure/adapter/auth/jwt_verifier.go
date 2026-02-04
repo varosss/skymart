@@ -2,6 +2,7 @@ package auth
 
 import (
 	"clirzy/auth/internal/domain"
+	"clirzy/auth/internal/domain/port"
 	"clirzy/auth/internal/domain/valueobject"
 	"crypto/rsa"
 
@@ -25,7 +26,7 @@ func NewJWTVerifier(
 
 func (v *JWTVerifier) VerifyAccess(
 	tokenString string,
-) (valueobject.UserID, error) {
+) (*port.AccessTokenClaims, error) {
 
 	claims := jwt.MapClaims{}
 
@@ -41,20 +42,33 @@ func (v *JWTVerifier) VerifyAccess(
 		jwt.WithIssuer(v.issuer),
 		jwt.WithValidMethods([]string{"RS256"}),
 	)
-	if err != nil {
-		return "", domain.ErrInvalidToken
-	}
-
-	if !token.Valid {
-		return "", domain.ErrInvalidToken
+	if err != nil || !token.Valid {
+		return nil, domain.ErrInvalidToken
 	}
 
 	sub, ok := claims["sub"].(string)
 	if !ok || sub == "" {
-		return "", domain.ErrInvalidClaims
+		return nil, domain.ErrInvalidClaims
 	}
 
-	return valueobject.UserID(sub), nil
+	rawRoles, ok := claims["roles"].([]interface{})
+	if !ok {
+		return nil, domain.ErrInvalidClaims
+	}
+
+	roles := make([]valueobject.RoleCode, 0, len(rawRoles))
+	for _, r := range rawRoles {
+		roleStr, ok := r.(string)
+		if !ok {
+			return nil, domain.ErrInvalidClaims
+		}
+		roles = append(roles, valueobject.RoleCode(roleStr))
+	}
+
+	return &port.AccessTokenClaims{
+		UserID: valueobject.UserID(sub),
+		Roles:  roles,
+	}, nil
 }
 
 func (v *JWTVerifier) VerifyRefresh(

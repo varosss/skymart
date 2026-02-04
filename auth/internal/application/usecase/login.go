@@ -22,8 +22,9 @@ type LoginResult struct {
 
 type LoginUseCase struct {
 	users         aport.UserGateway
+	roles         port.RoleAssignmentRepo
 	passwords     port.PasswordVerifier
-	refreshTokens port.RefreshTokensRepo
+	refreshTokens port.RefreshTokenRepo
 	signer        port.TokenSigner
 	clock         port.Clock
 	refreshTTL    time.Duration
@@ -31,14 +32,16 @@ type LoginUseCase struct {
 
 func NewLoginUseCase(
 	users aport.UserGateway,
+	roles port.RoleAssignmentRepo,
 	passwords port.PasswordVerifier,
-	refreshTokens port.RefreshTokensRepo,
+	refreshTokens port.RefreshTokenRepo,
 	signer port.TokenSigner,
 	clock port.Clock,
 	refreshTTL time.Duration,
 ) *LoginUseCase {
 	return &LoginUseCase{
 		users:         users,
+		roles:         roles,
 		passwords:     passwords,
 		refreshTokens: refreshTokens,
 		signer:        signer,
@@ -53,6 +56,9 @@ func (uc *LoginUseCase) Execute(
 ) (*LoginResult, error) {
 	user, err := uc.users.FindByEmail(ctx, cmd.Email)
 	if err != nil {
+		return nil, err
+	}
+	if user == nil {
 		return nil, domain.ErrInvalidCredentials
 	}
 
@@ -67,6 +73,16 @@ func (uc *LoginUseCase) Execute(
 		return nil, err
 	}
 
+	roles, err := uc.roles.GetRoles(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	accessJWT, err := uc.signer.SignAccess(userID, roles, now)
+	if err != nil {
+		return nil, err
+	}
+
 	refresh := entity.NewRefreshToken(
 		valueobject.NewTokenID(),
 		userID,
@@ -74,11 +90,6 @@ func (uc *LoginUseCase) Execute(
 	)
 
 	if err := uc.refreshTokens.Save(ctx, refresh); err != nil {
-		return nil, err
-	}
-
-	accessJWT, err := uc.signer.SignAccess(userID, now)
-	if err != nil {
 		return nil, err
 	}
 

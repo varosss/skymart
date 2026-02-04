@@ -15,23 +15,23 @@ type UnpublishProductCommand struct {
 }
 
 type UnpublishProductUseCase struct {
-	sellers   aport.SellerQuery
-	products  port.ProductsRepo
-	access    *service.ProductAccessService
-	publisher aport.EventPublisher
+	sellers  aport.SellerQuery
+	products port.ProductRepo
+	access   *service.ProductAccessService
+	bus      aport.EventBus
 }
 
 func NewUnpublishProductUseCase(
 	sellers aport.SellerQuery,
-	products port.ProductsRepo,
+	products port.ProductRepo,
 	access *service.ProductAccessService,
-	publisher aport.EventPublisher,
+	bus aport.EventBus,
 ) *UnpublishProductUseCase {
 	return &UnpublishProductUseCase{
-		sellers:   sellers,
-		products:  products,
-		access:    access,
-		publisher: publisher,
+		sellers:  sellers,
+		products: products,
+		access:   access,
+		bus:      bus,
 	}
 }
 
@@ -62,5 +62,5 @@ func (uc *UnpublishProductUseCase) Execute(
 		return err
 	}
 
-	return uc.publisher.Publish(product.PullEvents())
+	return uc.bus.Publish(ctx, product.PullEvents())
 }

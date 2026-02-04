@@ -12,12 +12,12 @@ type LogoutCommand struct {
 
 type LogoutUseCase struct {
 	verifier      port.TokenVerifier
-	refreshTokens port.RefreshTokensRepo
+	refreshTokens port.RefreshTokenRepo
 }
 
 func NewLogoutUseCase(
 	verifier port.TokenVerifier,
-	refreshTokens port.RefreshTokensRepo,
+	refreshTokens port.RefreshTokenRepo,
 ) *LogoutUseCase {
 	return &LogoutUseCase{
 		verifier:      verifier,

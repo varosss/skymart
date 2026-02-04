@@ -104,7 +104,7 @@ func (p *Product) UpdatePrice(newPrice valueobject.Money) error {
 	if p.status == valueobject.StatusArchived {
 		return domain.ErrCannotChangeArchivedProduct
 	}
-	if newPrice.Amount < 0 {
+	if newPrice.Amount() < 0 {
 		return domain.ErrInvalidTitle
 	}
 

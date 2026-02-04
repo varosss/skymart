@@ -10,6 +10,7 @@ type Order struct {
 	id      valueobject.OrderID
 	buyerID valueobject.BuyerID
 	status  valueobject.Status
+	total   valueobject.Money
 	items   []OrderItem
 
 	events []event.Event
@@ -24,24 +25,42 @@ func NewOrder(
 		return nil, domain.ErrEmptyOrder
 	}
 
-	o := &Order{
-		id:      valueobject.NewOrderID(),
-		buyerID: buyerID,
-		items:   items,
-		status:  valueobject.StatusDraft,
-	}
+	var totalAmount int64
+	var currency string
 
 	snapshots := make([]event.OrderItemSnapshot, len(items))
 	for i, item := range items {
-		snapshots[i] = event.OrderItemSnapshot{
-			ProductID: string(item.productID),
-			SellerID:  string(item.sellerID),
-			Price:     item.price.Amount,
-			Qty:       item.qty,
+		if i == 0 {
+			currency = item.price.Currency()
 		}
+
+		if item.price.Currency() != currency {
+			return nil, domain.ErrMixedCurrencies
+		}
+
+		lineTotal := item.price.Amount() * item.qty
+		totalAmount += lineTotal
+
+		snapshots[i] = event.NewOrderItemSnapshot(
+			item.productID,
+			item.sellerID,
+			item.price.Amount(),
+			item.price.Currency(),
+			item.qty,
+		)
 	}
 
-	o.addEvent(event.NewOrderCreated(o.id, o.buyerID, snapshots))
+	total := valueobject.NewMoney(totalAmount, currency)
+
+	o := &Order{
+		id:      valueobject.NewOrderID(),
+		buyerID: buyerID,
+		status:  valueobject.StatusDraft,
+		total:   total,
+		items:   items,
+	}
+
+	o.addEvent(event.NewOrderCreated(o.id, o.buyerID, total, snapshots))
 
 	return o, nil
 }

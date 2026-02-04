@@ -1,5 +1,11 @@
 package event
 
+import "time"
+
 type Event interface {
-	Name() string
+	ID() string
+	Type() string
+	AggregateID() string
+	AggregateType() string
+	OccurredAt() time.Time
 }

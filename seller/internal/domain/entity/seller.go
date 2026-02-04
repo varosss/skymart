@@ -7,9 +7,9 @@ type Seller struct {
 	userID valueobject.UserID
 }
 
-func NewSeller(id valueobject.SellerID, userID valueobject.UserID) *Seller {
+func NewSeller(userID valueobject.UserID) *Seller {
 	return &Seller{
-		id:     id,
+		id:     valueobject.NewSellerID(),
 		userID: userID,
 	}
 }

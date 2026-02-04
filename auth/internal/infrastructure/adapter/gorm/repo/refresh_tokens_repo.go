@@ -11,15 +11,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type RefreshTokensGormRepo struct {
+type RefreshTokenGormRepo struct {
 	db *gorm.DB
 }
 
-func NewRefreshTokensGormRepo(db *gorm.DB) port.RefreshTokensRepo {
-	return &RefreshTokensGormRepo{db: db}
+func NewRefreshTokenGormRepo(db *gorm.DB) port.RefreshTokenRepo {
+	return &RefreshTokenGormRepo{db: db}
 }
 
-func (r *RefreshTokensGormRepo) Save(
+func (r *RefreshTokenGormRepo) Save(
 	ctx context.Context,
 	token *entity.RefreshToken,
 ) error {
@@ -30,7 +30,7 @@ func (r *RefreshTokensGormRepo) Save(
 		Error
 }
 
-func (r *RefreshTokensGormRepo) Get(
+func (r *RefreshTokenGormRepo) Get(
 	ctx context.Context,
 	id valueobject.TokenID,
 ) (*entity.RefreshToken, error) {
@@ -51,7 +51,7 @@ func (r *RefreshTokensGormRepo) Get(
 	return mapper.ToEntity(&m), nil
 }
 
-func (r *RefreshTokensGormRepo) Revoke(
+func (r *RefreshTokenGormRepo) Revoke(
 	ctx context.Context,
 	id valueobject.TokenID,
 ) error {

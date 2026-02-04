@@ -20,10 +20,10 @@ type CreateOrderCommand struct {
 }
 
 type CreateOrderUseCase struct {
-	products  aport.ProductQuery
-	buyers    aport.BuyerQuery
-	orders    port.OrdersRepo
-	publisher aport.EventPublisher
+	products aport.ProductGateway
+	buyers   aport.BuyerGateway
+	orders   port.OrderRepo
+	bus      aport.EventBus
 }
 
 func (uc *CreateOrderUseCase) Execute(
@@ -115,7 +115,7 @@ func (uc *CreateOrderUseCase) Execute(
 		return "", err
 	}
 
-	if err := uc.publisher.Publish(order.PullEvents()); err != nil {
+	if err := uc.bus.Publish(ctx, order.PullEvents()); err != nil {
 		return "", err
 	}
 

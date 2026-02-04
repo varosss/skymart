@@ -16,3 +16,7 @@ func ParsePaymentID(id string) (PaymentID, error) {
 
 	return PaymentID(parsedUUID.String()), nil
 }
+
+func (id PaymentID) String() string {
+	return string(id)
+}

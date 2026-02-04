@@ -12,4 +12,5 @@ type UserDTO struct {
 
 type UserQuery interface {
 	GetByEmail(ctx context.Context, email string) (*UserDTO, error)
+	GetByID(ctx context.Context, userID string) (*UserDTO, error)
 }

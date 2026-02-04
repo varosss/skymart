@@ -31,18 +31,24 @@ func NewJWTSigner(
 
 func (s *JWTSigner) SignAccess(
 	userID valueobject.UserID,
+	roles []valueobject.RoleCode,
 	now time.Time,
 ) (string, error) {
 
+	roleStrings := make([]string, 0, len(roles))
+	for _, r := range roles {
+		roleStrings = append(roleStrings, string(r))
+	}
+
 	claims := jwt.MapClaims{
-		"sub": userID,
-		"iat": now.Unix(),
-		"exp": now.Add(s.accessTTL).Unix(),
-		"iss": s.issuer,
+		"sub":   string(userID),
+		"roles": roleStrings,
+		"iat":   now.Unix(),
+		"exp":   now.Add(s.accessTTL).Unix(),
+		"iss":   s.issuer,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-
 	return token.SignedString(s.privateKey)
 }
 

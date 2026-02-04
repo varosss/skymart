@@ -1,17 +1,4 @@
 services:
-  # clirzy-api-gateway:
-  #   container_name: clirzy-api-gateway
-  #   image: vaross/private-projects:clirzy-api-gateway-latest
-  #   volumes:
-  #     - ./api-gateway/:/srv/:rw
-  #   environment:
-  #     - .env
-  #   depends_on:
-  #     - clirzy-auth
-  #     - clirzy-user
-  #     - clirzy-ai
-  #     - clirzy-payments
-
   clirzy-auth:
     container_name: clirzy-auth
     image: vaross/private-projects:clirzy-auth-latest
@@ -21,7 +8,7 @@ services:
       - clirzy-postgres
     networks:
       - clirzy-network
-  
+
   clirzy-user:
     container_name: clirzy-user
     image: vaross/private-projects:clirzy-user-latest
@@ -32,21 +19,33 @@ services:
     networks:
       - clirzy-network
 
-  # clirzy-ai:
-  #   container_name: clirzy-ai
-  #   image: vaross/private-projects:clirzy-ai-latest
-  #   volumes:
-  #     - ./ai/:/srv/:rw
-  #   environment:
-  #     - .env
+  clirzy-payments:
+    container_name: clirzy-payments
+    image: vaross/private-projects:clirzy-payments-latest
+    env_file:
+      - .env
+    depends_on:
+      - clirzy-postgres
+    networks:
+      - clirzy-network
 
-  # clirzy-payments:
-  #   container_name: clirzy-payments
-  #   image: vaross/private-projects:clirzy-payments-latest
-  #   volumes:
-  #     - ./payment/:/srv/:rw
-  #   environment:
-  #     - .env
+  clirzy-zookeeper:
+  image: confluentinc/cp-zookeeper:7.6.0
+  container_name: clirzy-zookeeper
+  environment:
+    - .env
+  ports:
+    - "2181:2181"
+
+  clirzy-kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: clirzy-kafka
+    depends_on:
+      - clirzy-zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      - .env
 
   clirzy-nginx:
     container_name: clirzy-nginx

@@ -10,7 +10,7 @@ type UseCases struct {
 }
 
 func BuildUseCases(
-	users port.UsersRepo,
+	users port.UserRepo,
 	passwords port.PasswordHasher,
 	clock port.Clock,
 ) *UseCases {

@@ -24,7 +24,20 @@ func NewUserServiceServer(registerUserUC *usecase.RegisterUserUseCase) *UserServ
 func (s *UserServiceServer) GetUserByEmail(ctx context.Context, req *pb.GetUserByEmailRequest) (*pb.User, error) {
 	user, err := s.users.GetByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, domain.ErrNoUserFound
+		return nil, domain.ErrUserNotFound
+	}
+
+	return &pb.User{
+		Id:           user.ID,
+		Email:        user.Email,
+		PasswordHash: user.PasswordHash,
+	}, nil
+}
+
+func (s *UserServiceServer) GetUserByID(ctx context.Context, req *pb.GetUserByIdRequest) (*pb.User, error) {
+	user, err := s.users.GetByID(ctx, req.Id)
+	if err != nil {
+		return nil, domain.ErrUserNotFound
 	}
 
 	return &pb.User{

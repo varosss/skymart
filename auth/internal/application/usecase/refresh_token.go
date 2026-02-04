@@ -19,7 +19,8 @@ type RefreshTokenResult struct {
 }
 
 type RefreshTokenUseCase struct {
-	refreshTokens port.RefreshTokensRepo
+	refreshTokens port.RefreshTokenRepo
+	roles         port.RoleAssignmentRepo
 	verifier      port.TokenVerifier
 	signer        port.TokenSigner
 	clock         port.Clock
@@ -27,7 +28,8 @@ type RefreshTokenUseCase struct {
 }
 
 func NewRefreshTokenUseCase(
-	refreshTokens port.RefreshTokensRepo,
+	refreshTokens port.RefreshTokenRepo,
+	roles port.RoleAssignmentRepo,
 	verifier port.TokenVerifier,
 	signer port.TokenSigner,
 	clock port.Clock,
@@ -35,6 +37,7 @@ func NewRefreshTokenUseCase(
 ) *RefreshTokenUseCase {
 	return &RefreshTokenUseCase{
 		refreshTokens: refreshTokens,
+		roles:         roles,
 		verifier:      verifier,
 		signer:        signer,
 		clock:         clock,
@@ -68,6 +71,16 @@ func (uc *RefreshTokenUseCase) Execute(
 		return nil, err
 	}
 
+	roles, err := uc.roles.GetRoles(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	accessJWT, err := uc.signer.SignAccess(userID, roles, now)
+	if err != nil {
+		return nil, err
+	}
+
 	newRefresh := entity.NewRefreshToken(
 		valueobject.NewTokenID(),
 		userID,
@@ -75,11 +88,6 @@ func (uc *RefreshTokenUseCase) Execute(
 	)
 
 	if err := uc.refreshTokens.Save(ctx, newRefresh); err != nil {
-		return nil, err
-	}
-
-	accessJWT, err := uc.signer.SignAccess(userID, now)
-	if err != nil {
 		return nil, err
 	}
 

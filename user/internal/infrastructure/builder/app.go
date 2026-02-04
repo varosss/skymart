@@ -21,7 +21,7 @@ func BuildApp(cfg *config.Config) (*pkgapp.Application, error) {
 	})
 
 	uc := BuildUseCases(
-		repo.NewUsersGormRepo(conn),
+		repo.NewUserGormRepo(conn),
 		security.NewBcryptPasswordHasher(cfg.Security.HashCost),
 		clock.NewSystemClock(),
 	)

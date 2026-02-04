@@ -30,12 +30,12 @@ func (uc *ValidateAccessTokenUseCase) Execute(
 	cmd ValidateAccessTokenCommand,
 ) (*ValidateAccessTokenResult, error) {
 
-	userID, err := uc.verifier.VerifyAccess(cmd.AccessToken)
+	claims, err := uc.verifier.VerifyAccess(cmd.AccessToken)
 	if err != nil {
 		return nil, domain.ErrInvalidToken
 	}
 
 	return &ValidateAccessTokenResult{
-		UserID: userID,
+		UserID: claims.UserID,
 	}, nil
 }

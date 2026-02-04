@@ -14,13 +14,13 @@ type RegisterUserCommand struct {
 }
 
 type RegisterUserUseCase struct {
-	users     port.UsersRepo
+	users     port.UserRepo
 	passwords port.PasswordHasher
 	clock     port.Clock
 }
 
 func NewRegisterUserUseCase(
-	users port.UsersRepo,
+	users port.UserRepo,
 	passwords port.PasswordHasher,
 	clock port.Clock,
 ) *RegisterUserUseCase {

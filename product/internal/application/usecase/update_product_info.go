@@ -17,20 +17,20 @@ type UpdateProductInfoCommand struct {
 }
 
 type UpdateProductInfoUseCase struct {
-	access    *service.ProductAccessService
-	products  port.ProductsRepo
-	publisher aport.EventPublisher
+	access   *service.ProductAccessService
+	products port.ProductRepo
+	bus      aport.EventBus
 }
 
 func NewUpdateProductInfoUseCase(
 	access *service.ProductAccessService,
-	products port.ProductsRepo,
-	publisher aport.EventPublisher,
+	products port.ProductRepo,
+	bus aport.EventBus,
 ) *UpdateProductInfoUseCase {
 	return &UpdateProductInfoUseCase{
-		access:    access,
-		products:  products,
-		publisher: publisher,
+		access:   access,
+		products: products,
+		bus:      bus,
 	}
 }
 
@@ -61,5 +61,5 @@ func (uc *UpdateProductInfoUseCase) Execute(
 		return err
 	}
 
-	return uc.publisher.Publish(product.PullEvents())
+	return uc.bus.Publish(ctx, product.PullEvents())
 }

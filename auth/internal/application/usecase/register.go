@@ -2,6 +2,7 @@ package usecase
 
 import (
 	aport "clirzy/auth/internal/application/port"
+	"clirzy/auth/internal/domain/port"
 	"clirzy/auth/internal/domain/valueobject"
 	"context"
 )
@@ -17,11 +18,13 @@ type RegisterResult struct {
 
 type RegisterUseCase struct {
 	users aport.UserGateway
+	roles port.RoleAssignmentRepo
 }
 
-func NewRegisterUseCase(users aport.UserGateway) *RegisterUseCase {
+func NewRegisterUseCase(users aport.UserGateway, roles port.RoleAssignmentRepo) *RegisterUseCase {
 	return &RegisterUseCase{
 		users: users,
+		roles: roles,
 	}
 }
 
@@ -36,6 +39,10 @@ func (uc *RegisterUseCase) Execute(
 
 	userID, err := valueobject.ParseUserID(user.ID)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := uc.roles.AssignRole(ctx, userID, valueobject.UserRole); err != nil {
 		return nil, err
 	}
 

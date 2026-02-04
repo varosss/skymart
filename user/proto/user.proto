@@ -18,6 +18,10 @@ message GetUserByEmailRequest {
   string email = 1;
 }
 
+message GetUserByIdRequest {
+  string id = 1;
+}
+
 message RegisterUserRequest {
   string email = 1;
   string password = 2;
@@ -31,5 +35,6 @@ message RegisterUserResponse {
 
 service UserService {
   rpc GetUserByEmail(GetUserByEmailRequest) returns (User);
+  rpc GetUserByID(GetUserByIdRequest) returns (User);
   rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
 }

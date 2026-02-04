@@ -2,12 +2,15 @@ package event
 
 import (
 	"clirzy/product/internal/domain/valueobject"
+	"time"
 )
 
 type ProductPriceUpdated struct {
-	ProductID valueobject.ProductID
-	SellerID  valueobject.SellerID
-	Price     valueobject.Money
+	eventID    valueobject.EventID
+	productID  valueobject.ProductID
+	sellerID   valueobject.SellerID
+	price      valueobject.Money
+	occurredAt time.Time
 }
 
 func NewProductPriceUpdated(
@@ -16,12 +19,42 @@ func NewProductPriceUpdated(
 	price valueobject.Money,
 ) ProductPriceUpdated {
 	return ProductPriceUpdated{
-		ProductID: productID,
-		SellerID:  sellerID,
-		Price:     price,
+		eventID:    valueobject.NewEventID(),
+		productID:  productID,
+		sellerID:   sellerID,
+		price:      price,
+		occurredAt: time.Now(),
 	}
 }
 
-func (e ProductPriceUpdated) Name() string {
+func (e ProductPriceUpdated) ID() string {
+	return e.eventID.String()
+}
+
+func (ProductPriceUpdated) Type() string {
 	return "product.price_updated"
+}
+
+func (e ProductPriceUpdated) AggregateID() string {
+	return e.productID.String()
+}
+
+func (ProductPriceUpdated) AggregateType() string {
+	return "product"
+}
+
+func (e ProductPriceUpdated) OccurredAt() time.Time {
+	return e.occurredAt
+}
+
+func (e ProductPriceUpdated) ProductID() valueobject.ProductID {
+	return e.productID
+}
+
+func (e ProductPriceUpdated) SellerID() valueobject.SellerID {
+	return e.sellerID
+}
+
+func (e ProductPriceUpdated) Price() valueobject.Money {
+	return e.Price()
 }

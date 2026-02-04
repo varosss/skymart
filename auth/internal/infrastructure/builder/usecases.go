@@ -17,17 +17,19 @@ type UseCases struct {
 
 func BuildUseCases(
 	users aport.UserGateway,
+	roles port.RoleAssignmentRepo,
 	passwords port.PasswordVerifier,
-	refreshTokens port.RefreshTokensRepo,
+	refreshTokens port.RefreshTokenRepo,
 	signer port.TokenSigner,
 	verifier port.TokenVerifier,
 	clock port.Clock,
 	refreshTTL time.Duration,
 ) *UseCases {
 	return &UseCases{
-		Register: usecase.NewRegisterUseCase(users),
+		Register: usecase.NewRegisterUseCase(users, roles),
 		Login: usecase.NewLoginUseCase(
 			users,
+			roles,
 			passwords,
 			refreshTokens,
 			signer,
@@ -40,6 +42,7 @@ func BuildUseCases(
 		),
 		RefreshToken: usecase.NewRefreshTokenUseCase(
 			refreshTokens,
+			roles,
 			verifier,
 			signer,
 			clock,

@@ -11,12 +11,12 @@ import (
 
 type ProductAccessService struct {
 	sellers  aport.SellerQuery
-	products port.ProductsRepo
+	products port.ProductRepo
 }
 
 func NewProductAccessService(
 	sellers aport.SellerQuery,
-	products port.ProductsRepo,
+	products port.ProductRepo,
 ) *ProductAccessService {
 	return &ProductAccessService{sellers, products}
 }

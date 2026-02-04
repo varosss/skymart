@@ -18,20 +18,20 @@ type CreateProductCommand struct {
 }
 
 type CreateProductUseCase struct {
-	sellers   aport.SellerQuery
-	products  port.ProductsRepo
-	publisher aport.EventPublisher
+	sellers  aport.SellerQuery
+	products port.ProductRepo
+	bus      aport.EventBus
 }
 
 func NewCreateProductUseCase(
 	sellers aport.SellerQuery,
-	products port.ProductsRepo,
-	publisher aport.EventPublisher,
+	products port.ProductRepo,
+	bus aport.EventBus,
 ) *CreateProductUseCase {
 	return &CreateProductUseCase{
-		sellers:   sellers,
-		products:  products,
-		publisher: publisher,
+		sellers:  sellers,
+		products: products,
+		bus:      bus,
 	}
 }
 
@@ -66,7 +66,7 @@ func (uc *CreateProductUseCase) Execute(
 		sellerID,
 		cmd.Title,
 		cmd.Description,
-		valueobject.Money{Amount: cmd.Price, Currency: cmd.Currency},
+		valueobject.NewMoney(cmd.Price, cmd.Currency),
 		valueobject.StatusDraft,
 	)
 
@@ -74,7 +74,9 @@ func (uc *CreateProductUseCase) Execute(
 		return "", err
 	}
 
-	uc.publisher.Publish(product.PullEvents())
+	if err := uc.bus.Publish(ctx, product.PullEvents()); err != nil {
+		return "", err
+	}
 
 	return product.ID(), nil
 }

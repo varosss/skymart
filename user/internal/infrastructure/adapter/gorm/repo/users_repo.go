@@ -12,15 +12,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type UsersGormRepo struct {
+type UserGormRepo struct {
 	db *gorm.DB
 }
 
-func NewUsersGormRepo(db *gorm.DB) *UsersGormRepo {
-	return &UsersGormRepo{db: db}
+func NewUserGormRepo(db *gorm.DB) *UserGormRepo {
+	return &UserGormRepo{db: db}
 }
 
-func (r *UsersGormRepo) Save(
+func (r *UserGormRepo) Save(
 	ctx context.Context,
 	user *entity.User,
 ) error {
@@ -32,7 +32,7 @@ func (r *UsersGormRepo) Save(
 		Error
 }
 
-func (r *UsersGormRepo) FindByID(
+func (r *UserGormRepo) FindByID(
 	ctx context.Context,
 	id valueobject.UserID,
 ) (*entity.User, error) {
@@ -53,7 +53,7 @@ func (r *UsersGormRepo) FindByID(
 	return mapper.ToDomain(&m)
 }
 
-func (r *UsersGormRepo) FindByEmail(
+func (r *UserGormRepo) FindByEmail(
 	ctx context.Context,
 	email valueobject.Email,
 ) (*entity.User, error) {
@@ -74,7 +74,7 @@ func (r *UsersGormRepo) FindByEmail(
 	return mapper.ToDomain(&m)
 }
 
-func (r *UsersGormRepo) ExistsByEmail(
+func (r *UserGormRepo) ExistsByEmail(
 	ctx context.Context,
 	email valueobject.Email,
 ) bool {

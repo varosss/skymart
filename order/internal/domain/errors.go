@@ -12,4 +12,5 @@ var (
 	ErrProductNotFound     = errors.New("product not found")
 	ErrNoBuyerFound        = errors.New("buyer not found")
 	ErrInactiveBuyer       = errors.New("buyer is inactive")
+	ErrMixedCurrencies     = errors.New("currencies are mixed")
 )

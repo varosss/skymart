@@ -16,3 +16,7 @@ func ParseProductID(id string) (ProductID, error) {
 
 	return ProductID(parsedUUID.String()), nil
 }
+
+func (id ProductID) String() string {
+	return string(id)
+}
