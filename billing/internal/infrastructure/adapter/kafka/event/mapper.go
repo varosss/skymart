@@ -109,7 +109,7 @@ func (m *EventMapper) FromMessage(
 			return nil, err
 		}
 
-		occuredAt, err := time.Parse(time.RFC3339, msg.OccurredAt)
+		occurredAt, err := time.Parse(time.RFC3339, msg.OccurredAt)
 		if err != nil {
 			return nil, err
 		}
@@ -120,7 +120,49 @@ func (m *EventMapper) FromMessage(
 			valueobject.BuyerID(data.BuyerID),
 			money,
 			items,
-			occuredAt,
+			occurredAt,
+		), nil
+
+	case "invoice.paid":
+		data, ok := msg.Payload.(payload.InvoicePaidPayload)
+		if !ok {
+			return nil, fmt.Errorf("invalid payload for event %s", msg.EventType)
+		}
+
+		money, err := valueobject.NewMoney(data.Amount, data.Currency)
+		if err != nil {
+			return nil, err
+		}
+
+		occurredAt, err := time.Parse(time.RFC3339, msg.OccurredAt)
+		if err != nil {
+			return nil, err
+		}
+
+		return domevent.InvoicePaidFromPrimitives(
+			valueobject.EventID(msg.AggregateID),
+			valueobject.InvoiceID(data.InvoiceID),
+			valueobject.BuyerID(data.BuyerID),
+			money,
+			occurredAt,
+		), nil
+
+	case "invoice.canceled":
+		data, ok := msg.Payload.(payload.InvoiceCanceledPayload)
+		if !ok {
+			return nil, fmt.Errorf("invalid payload for event %s", msg.EventType)
+		}
+
+		occurredAt, err := time.Parse(time.RFC3339, msg.OccurredAt)
+		if err != nil {
+			return nil, err
+		}
+
+		return domevent.InvoiceCanceledFromPrimitives(
+			valueobject.EventID(msg.AggregateID),
+			valueobject.InvoiceID(data.InvoiceID),
+			valueobject.BuyerID(data.BuyerID),
+			occurredAt,
 		), nil
 
 	default:

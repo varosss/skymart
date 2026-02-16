@@ -1,8 +1,6 @@
 package usecase
 
 import (
-	aport "clirzy/buyer/internal/application/port"
-	"clirzy/buyer/internal/domain"
 	"clirzy/buyer/internal/domain/entity"
 	"clirzy/buyer/internal/domain/port"
 	"clirzy/buyer/internal/domain/valueobject"
@@ -11,7 +9,7 @@ import (
 )
 
 type CreateBuyerCommand struct {
-	UserID string
+	UserID valueobject.UserID
 }
 
 type CreateBuyerUseCase struct {
@@ -20,7 +18,6 @@ type CreateBuyerUseCase struct {
 
 func NewCreateBuyerUseCase(
 	buyers port.BuyerRepo,
-	users aport.UserGateway,
 ) *CreateBuyerUseCase {
 	return &CreateBuyerUseCase{
 		buyers: buyers,
@@ -28,12 +25,7 @@ func NewCreateBuyerUseCase(
 }
 
 func (uc *CreateBuyerUseCase) Execute(ctx context.Context, cmd CreateBuyerCommand) (*entity.Buyer, error) {
-	userID, err := valueobject.ParseUserID(cmd.UserID)
-	if err != nil {
-		return nil, domain.ErrInvalidUserID
-	}
-
-	buyer, err := uc.buyers.FindByUserID(ctx, userID)
+	buyer, err := uc.buyers.FindByUserID(ctx, cmd.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +34,7 @@ func (uc *CreateBuyerUseCase) Execute(ctx context.Context, cmd CreateBuyerComman
 		return nil, errors.New("buyer already exists")
 	}
 
-	buyer = entity.NewBuyer(userID)
+	buyer = entity.NewBuyer(cmd.UserID)
 	if err := uc.buyers.Save(ctx, buyer); err != nil {
 		return nil, err
 	}

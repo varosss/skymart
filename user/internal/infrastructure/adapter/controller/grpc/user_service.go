@@ -4,6 +4,7 @@ import (
 	aport "clirzy/user/internal/application/port"
 	"clirzy/user/internal/application/usecase"
 	"clirzy/user/internal/domain"
+	"clirzy/user/internal/domain/valueobject"
 	pb "clirzy/user/proto"
 	"context"
 )
@@ -22,7 +23,12 @@ func NewUserServiceServer(registerUserUC *usecase.RegisterUserUseCase) *UserServ
 }
 
 func (s *UserServiceServer) GetUserByEmail(ctx context.Context, req *pb.GetUserByEmailRequest) (*pb.User, error) {
-	user, err := s.users.GetByEmail(ctx, req.Email)
+	email, err := valueobject.NewEmail(req.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := s.users.GetByEmail(ctx, email)
 	if err != nil {
 		return nil, domain.ErrUserNotFound
 	}
@@ -35,7 +41,12 @@ func (s *UserServiceServer) GetUserByEmail(ctx context.Context, req *pb.GetUserB
 }
 
 func (s *UserServiceServer) GetUserByID(ctx context.Context, req *pb.GetUserByIdRequest) (*pb.User, error) {
-	user, err := s.users.GetByID(ctx, req.Id)
+	userID, err := valueobject.ParseUserID(req.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := s.users.GetByID(ctx, userID)
 	if err != nil {
 		return nil, domain.ErrUserNotFound
 	}

@@ -18,8 +18,8 @@ func NewPaymentSucceeded(
 	paymentID valueobject.PaymentID,
 	invoiceID valueobject.InvoiceID,
 	money valueobject.Money,
-) PaymentSucceeded {
-	return PaymentSucceeded{
+) *PaymentSucceeded {
+	return &PaymentSucceeded{
 		eventID:    valueobject.NewEventID(),
 		paymentID:  paymentID,
 		invoiceID:  invoiceID,
@@ -29,38 +29,55 @@ func NewPaymentSucceeded(
 	}
 }
 
-func (e PaymentSucceeded) ID() string {
+func PaymentSucceededFromPrimitives(
+	eventID valueobject.EventID,
+	paymentID valueobject.PaymentID,
+	invoiceID valueobject.InvoiceID,
+	money valueobject.Money,
+	occurredAt time.Time,
+) *PaymentSucceeded {
+	return &PaymentSucceeded{
+		eventID:    eventID,
+		paymentID:  paymentID,
+		invoiceID:  invoiceID,
+		amount:     money.Amount(),
+		currency:   money.Currency(),
+		occurredAt: occurredAt,
+	}
+}
+
+func (e *PaymentSucceeded) ID() string {
 	return e.eventID.String()
 }
 
-func (e PaymentSucceeded) Type() string {
+func (e *PaymentSucceeded) Type() string {
 	return "payment.succeeded"
 }
 
-func (e PaymentSucceeded) AggregateID() string {
+func (e *PaymentSucceeded) AggregateID() string {
 	return e.paymentID.String()
 }
 
-func (e PaymentSucceeded) AggregateType() string {
+func (e *PaymentSucceeded) AggregateType() string {
 	return "payment"
 }
 
-func (e PaymentSucceeded) OccurredAt() time.Time {
+func (e *PaymentSucceeded) OccurredAt() time.Time {
 	return e.occurredAt
 }
 
-func (e PaymentSucceeded) PaymentID() valueobject.PaymentID {
+func (e *PaymentSucceeded) PaymentID() valueobject.PaymentID {
 	return e.paymentID
 }
 
-func (e PaymentSucceeded) InvoiceID() valueobject.InvoiceID {
+func (e *PaymentSucceeded) InvoiceID() valueobject.InvoiceID {
 	return e.invoiceID
 }
 
-func (e PaymentSucceeded) Amount() int64 {
+func (e *PaymentSucceeded) Amount() int64 {
 	return e.amount
 }
 
-func (e PaymentSucceeded) Currency() string {
+func (e *PaymentSucceeded) Currency() string {
 	return e.currency
 }

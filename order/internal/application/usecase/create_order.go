@@ -10,12 +10,13 @@ import (
 )
 
 type CreateOrderItem struct {
-	ProductID string
+	SellerID  valueobject.SellerID
+	ProductID valueobject.ProductID
 	Quantity  int64
 }
 
 type CreateOrderCommand struct {
-	BuyerID string
+	BuyerID valueobject.BuyerID
 	Items   []CreateOrderItem
 }
 
@@ -31,36 +32,31 @@ func (uc *CreateOrderUseCase) Execute(
 	cmd CreateOrderCommand,
 ) (valueobject.OrderID, error) {
 
-	buyerID, err := valueobject.ParseBuyerID(cmd.BuyerID)
+	buyer, err := uc.buyers.GetByID(ctx, cmd.BuyerID)
 	if err != nil {
-		return "", domain.ErrInvalidBuyerID
-	}
-
-	buyer, err := uc.buyers.GetByID(cmd.BuyerID)
-	if err != nil {
-		return "", domain.ErrNoBuyerFound
+		return "", domain.ErrBuyerNotFound
 	}
 
 	if !buyer.IsActive {
 		return "", domain.ErrInactiveBuyer
 	}
 
-	productIDs := make([]string, 0, len(cmd.Items))
+	productIDs := make([]valueobject.ProductID, 0, len(cmd.Items))
 	qtyByProduct := make(map[string]int64)
 
-	for _, i := range cmd.Items {
-		if i.Quantity <= 0 {
+	for _, item := range cmd.Items {
+		if item.Quantity <= 0 {
 			return "", domain.ErrInvalidQuantity
 		}
 
-		if _, ok := qtyByProduct[i.ProductID]; !ok {
-			productIDs = append(productIDs, i.ProductID)
+		if _, ok := qtyByProduct[item.ProductID.String()]; !ok {
+			productIDs = append(productIDs, item.ProductID)
 		}
 
-		qtyByProduct[i.ProductID] += i.Quantity
+		qtyByProduct[item.ProductID.String()] += item.Quantity
 	}
 
-	products, err := uc.products.GetProducts(productIDs)
+	products, err := uc.products.GetProducts(ctx, productIDs)
 	if err != nil {
 		return "", err
 	}
@@ -71,40 +67,24 @@ func (uc *CreateOrderUseCase) Execute(
 
 	orderItems := make([]entity.OrderItem, 0, len(productIDs))
 
-	var productID valueobject.ProductID
-	var sellerID valueobject.SellerID
-	var price valueobject.Money
-
 	for _, p := range products {
 
 		if !p.IsPublished {
 			return "", domain.ErrProductNotAvailable
 		}
 
-		productID, err = valueobject.ParseProductID(p.ID)
-		if err != nil {
-			return "", domain.ErrInvalidProductID
-		}
-
-		sellerID, err = valueobject.ParseSellerID(p.SellerID)
-		if err != nil {
-			return "", domain.ErrInvalidSellerID
-		}
-
-		price = valueobject.NewMoney(p.Amount, p.Currency)
-
 		item := entity.NewOrderItem(
-			productID,
-			sellerID,
-			price,
-			qtyByProduct[p.ID],
+			p.ID,
+			p.SellerID,
+			p.Price,
+			qtyByProduct[p.ID.String()],
 		)
 
 		orderItems = append(orderItems, item)
 	}
 
 	order, err := entity.NewOrder(
-		buyerID,
+		cmd.BuyerID,
 		orderItems,
 	)
 	if err != nil {

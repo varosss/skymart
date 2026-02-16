@@ -18,14 +18,12 @@ func NewUserQuery(repo port.UserRepo) *UserQuery {
 	}
 }
 
-func (q *UserQuery) GetByEmail(ctx context.Context, email string) (*aport.UserDTO, error) {
-	preparedEmail, err := valueobject.NewEmail(email)
+func (q *UserQuery) GetByEmail(ctx context.Context, email valueobject.Email) (*aport.UserDTO, error) {
+	user, err := q.repo.FindByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
-
-	user, err := q.repo.FindByEmail(ctx, preparedEmail)
-	if user == nil || err != nil {
+	if user == nil {
 		return nil, domain.ErrUserNotFound
 	}
 
@@ -36,14 +34,12 @@ func (q *UserQuery) GetByEmail(ctx context.Context, email string) (*aport.UserDT
 	}, nil
 }
 
-func (q *UserQuery) GetByID(ctx context.Context, userID string) (*aport.UserDTO, error) {
-	preparedUserID, err := valueobject.ParseUserID(userID)
+func (q *UserQuery) GetByID(ctx context.Context, userID valueobject.UserID) (*aport.UserDTO, error) {
+	user, err := q.repo.FindByID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
-
-	user, err := q.repo.FindByID(ctx, preparedUserID)
-	if user == nil || err != nil {
+	if user == nil {
 		return nil, domain.ErrUserNotFound
 	}
 

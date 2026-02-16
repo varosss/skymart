@@ -51,6 +51,14 @@ func (p *Product) Price() valueobject.Money {
 	return p.price
 }
 
+func (p *Product) Title() string {
+	return p.title
+}
+
+func (p *Product) Description() string {
+	return p.description
+}
+
 func (p *Product) Publish() error {
 	if p.status != valueobject.StatusDraft && p.status != valueobject.StatusUnpublished {
 		return domain.ErrInvalidProductStatusTransition

@@ -24,6 +24,20 @@ func NewInvoiceCanceled(
 	}
 }
 
+func InvoiceCanceledFromPrimitives(
+	eventID valueobject.EventID,
+	invoiceID valueobject.InvoiceID,
+	buyerID valueobject.BuyerID,
+	occurredAt time.Time,
+) *InvoiceCanceled {
+	return &InvoiceCanceled{
+		eventID:    eventID,
+		invoiceID:  invoiceID,
+		buyerID:    buyerID,
+		occurredAt: occurredAt,
+	}
+}
+
 func (e *InvoiceCanceled) Type() string {
 	return "invoice.canceled"
 }

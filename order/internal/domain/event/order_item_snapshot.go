@@ -18,8 +18,8 @@ func NewOrderItemSnapshot(
 	amount int64,
 	currency string,
 	qty int64,
-) OrderItemSnapshot {
-	return OrderItemSnapshot{
+) *OrderItemSnapshot {
+	return &OrderItemSnapshot{
 		productID: productID,
 		sellerID:  sellerID,
 		amount:    amount,
@@ -28,22 +28,22 @@ func NewOrderItemSnapshot(
 	}
 }
 
-func (s OrderItemSnapshot) ProductID() valueobject.ProductID {
+func (s *OrderItemSnapshot) ProductID() valueobject.ProductID {
 	return s.productID
 }
 
-func (s OrderItemSnapshot) SellerID() valueobject.SellerID {
+func (s *OrderItemSnapshot) SellerID() valueobject.SellerID {
 	return s.sellerID
 }
 
-func (s OrderItemSnapshot) Amount() int64 {
+func (s *OrderItemSnapshot) Amount() int64 {
 	return s.amount
 }
 
-func (s OrderItemSnapshot) Currency() string {
+func (s *OrderItemSnapshot) Currency() string {
 	return s.currency
 }
 
-func (s OrderItemSnapshot) Qty() int64 {
+func (s *OrderItemSnapshot) Qty() int64 {
 	return s.qty
 }

@@ -3,8 +3,10 @@ package event
 import (
 	pkgkafka "clirzy/pkg/kafka"
 	domevent "clirzy/product/internal/domain/event"
+	"clirzy/product/internal/domain/valueobject"
 	"clirzy/product/internal/infrastructure/adapter/kafka/payload"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -20,7 +22,7 @@ func (m *EventMapper) ToMessage(
 
 	switch ev := e.(type) {
 
-	case domevent.ProductCreated:
+	case *domevent.ProductCreated:
 		return &pkgkafka.Message{
 			EventID:       ev.ID(),
 			EventType:     ev.Type(),
@@ -33,7 +35,7 @@ func (m *EventMapper) ToMessage(
 			},
 		}, nil
 
-	case domevent.ProductArchived:
+	case *domevent.ProductArchived:
 		return &pkgkafka.Message{
 			EventID:       ev.ID(),
 			EventType:     ev.Type(),
@@ -46,7 +48,7 @@ func (m *EventMapper) ToMessage(
 			},
 		}, nil
 
-	case domevent.ProductPublished:
+	case *domevent.ProductPublished:
 		return &pkgkafka.Message{
 			EventID:       ev.ID(),
 			EventType:     ev.Type(),
@@ -59,7 +61,7 @@ func (m *EventMapper) ToMessage(
 			},
 		}, nil
 
-	case domevent.ProductUnpublished:
+	case *domevent.ProductUnpublished:
 		return &pkgkafka.Message{
 			EventID:       ev.ID(),
 			EventType:     ev.Type(),
@@ -72,7 +74,7 @@ func (m *EventMapper) ToMessage(
 			},
 		}, nil
 
-	case domevent.ProductInfoUpdated:
+	case *domevent.ProductInfoUpdated:
 		return &pkgkafka.Message{
 			EventID:       ev.ID(),
 			EventType:     ev.Type(),
@@ -87,7 +89,7 @@ func (m *EventMapper) ToMessage(
 			},
 		}, nil
 
-	case domevent.ProductPriceUpdated:
+	case *domevent.ProductPriceUpdated:
 		return &pkgkafka.Message{
 			EventID:       ev.ID(),
 			EventType:     ev.Type(),
@@ -104,5 +106,111 @@ func (m *EventMapper) ToMessage(
 
 	default:
 		return nil, errors.New("unknown domain event")
+	}
+}
+
+func (m *EventMapper) FromMessage(
+	msg pkgkafka.Message,
+) (domevent.Event, error) {
+	switch msg.EventType {
+
+	case "product.created":
+		data, ok := msg.Payload.(payload.ProductCreatedPayload)
+		if !ok {
+			return nil, fmt.Errorf("invalid payload for event %s", msg.EventType)
+		}
+
+		occurredAt, err := time.Parse(time.RFC3339, msg.OccurredAt)
+		if err != nil {
+			return nil, err
+		}
+
+		return domevent.ProductCreatedFromPrimitives(
+			valueobject.EventID(msg.EventID),
+			valueobject.ProductID(data.ProductID),
+			valueobject.SellerID(data.SellerID),
+			occurredAt,
+		), nil
+
+	case "product.archived":
+		data, ok := msg.Payload.(payload.ProductArchivedPayload)
+		if !ok {
+			return nil, fmt.Errorf("invalid payload for event %s", msg.EventType)
+		}
+
+		occurredAt, err := time.Parse(time.RFC3339, msg.OccurredAt)
+		if err != nil {
+			return nil, err
+		}
+
+		return domevent.ProductArchivedFromPrimitives(
+			valueobject.EventID(msg.EventID),
+			valueobject.ProductID(data.ProductID),
+			valueobject.SellerID(data.SellerID),
+			occurredAt,
+		), nil
+
+	case "product.published":
+		data, ok := msg.Payload.(payload.ProductPublishedPayload)
+		if !ok {
+			return nil, fmt.Errorf("invalid payload for event %s", msg.EventType)
+		}
+
+		occurredAt, err := time.Parse(time.RFC3339, msg.OccurredAt)
+		if err != nil {
+			return nil, err
+		}
+
+		return domevent.ProductPublishedFromPrimitives(
+			valueobject.EventID(msg.EventID),
+			valueobject.ProductID(data.ProductID),
+			valueobject.SellerID(data.SellerID),
+			occurredAt,
+		), nil
+
+	case "product.unpublished":
+		data, ok := msg.Payload.(payload.ProductUnpublishedPayload)
+		if !ok {
+			return nil, fmt.Errorf("invalid payload for event %s", msg.EventType)
+		}
+
+		occurredAt, err := time.Parse(time.RFC3339, msg.OccurredAt)
+		if err != nil {
+			return nil, err
+		}
+
+		return domevent.ProductUnpublishedFromPrimitives(
+			valueobject.EventID(msg.EventID),
+			valueobject.ProductID(data.ProductID),
+			valueobject.SellerID(data.SellerID),
+			occurredAt,
+		), nil
+
+	case "product.price_updated":
+		data, ok := msg.Payload.(payload.ProductPriceUpdatedPayload)
+		if !ok {
+			return nil, fmt.Errorf("invalid payload for event %s", msg.EventType)
+		}
+
+		money, err := valueobject.NewMoney(data.Amount, data.Currency)
+		if err != nil {
+			return nil, err
+		}
+
+		occurredAt, err := time.Parse(time.RFC3339, msg.OccurredAt)
+		if err != nil {
+			return nil, err
+		}
+
+		return domevent.ProductPriceUpdatedFromPrimitives(
+			valueobject.EventID(msg.EventID),
+			valueobject.ProductID(data.ProductID),
+			valueobject.SellerID(data.SellerID),
+			money,
+			occurredAt,
+		), nil
+
+	default:
+		return nil, errors.New("unknown event type")
 	}
 }

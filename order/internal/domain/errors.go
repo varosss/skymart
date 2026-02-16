@@ -10,7 +10,7 @@ var (
 	ErrInvalidQuantity     = errors.New("invalid product quantity")
 	ErrProductNotAvailable = errors.New("product is not available")
 	ErrProductNotFound     = errors.New("product not found")
-	ErrNoBuyerFound        = errors.New("buyer not found")
+	ErrBuyerNotFound       = errors.New("buyer not found")
 	ErrInactiveBuyer       = errors.New("buyer is inactive")
 	ErrMixedCurrencies     = errors.New("currencies are mixed")
 )

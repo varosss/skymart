@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package auth.v1;
 
-option go_package = "clirzy/services/auth/proto;proto";
+option go_package = "clirzy/auth/proto;proto";
 
 // ---------- COMMON ----------
 
@@ -10,19 +10,21 @@ message User {
   string id = 1;
 }
 
-// ---------- VALIDATE ACCESS TOKEN ----------
+// ----------- QUERY -----------
 
 message ValidateAccessTokenRequest {
   string access_token = 1;
+
 }
 
 message ValidateAccessTokenResponse {
   string user_id = 1;
+  repeated string roles = 2;
 }
 
 // ---------- SERVICE ----------
 
 service AuthService {
   rpc ValidateAccessToken(ValidateAccessTokenRequest)
-      returns (ValidateAccessTokenResponse);
+    returns (ValidateAccessTokenResponse);
 }

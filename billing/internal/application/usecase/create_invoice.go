@@ -10,15 +10,14 @@ import (
 )
 
 type CreateInvoiceItem struct {
-	ProductID string
-	Price     int64
-	Currency  string
+	ProductID valueobject.ProductID
+	Money     valueobject.Money
 	Qty       int64
 }
 
 type CreateInvoiceCommand struct {
-	BuyerID string
-	OrderID string
+	BuyerID valueobject.BuyerID
+	OrderID valueobject.OrderID
 	Items   []CreateInvoiceItem
 }
 
@@ -39,17 +38,6 @@ func (uc *CreateInvoiceUseCase) Execute(
 	ctx context.Context,
 	cmd CreateInvoiceCommand,
 ) (valueobject.InvoiceID, error) {
-
-	buyerID, err := valueobject.ParseBuyerID(cmd.BuyerID)
-	if err != nil {
-		return "", domain.ErrInvalidBuyerID
-	}
-
-	orderID, err := valueobject.ParseOrderID(cmd.OrderID)
-	if err != nil {
-		return "", domain.ErrInvalidOrderID
-	}
-
 	if len(cmd.Items) == 0 {
 		return "", domain.ErrEmptyInvoice
 	}
@@ -57,19 +45,9 @@ func (uc *CreateInvoiceUseCase) Execute(
 	items := make([]entity.InvoiceItem, 0, len(cmd.Items))
 
 	for _, i := range cmd.Items {
-		productID, err := valueobject.ParseProductID(i.ProductID)
-		if err != nil {
-			return "", domain.ErrInvalidProductID
-		}
-
-		money, err := valueobject.NewMoney(i.Price, i.Currency)
-		if err != nil {
-			return "", err
-		}
-
 		item, err := entity.NewInvoiceItem(
-			productID,
-			money,
+			i.ProductID,
+			i.Money,
 			i.Qty,
 		)
 		if err != nil {
@@ -80,8 +58,8 @@ func (uc *CreateInvoiceUseCase) Execute(
 	}
 
 	invoice, err := entity.NewInvoice(
-		buyerID,
-		orderID,
+		cmd.BuyerID,
+		cmd.OrderID,
 		items,
 	)
 	if err != nil {

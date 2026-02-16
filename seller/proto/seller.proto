@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package seller.v1;
+
+option go_package = "clirzy/seller/proto;proto";
+
+// ----------- DTO -----------
+
+message Seller {
+  string id = 1;
+  string user_id = 2;
+  bool is_active = 3;
+}
+
+// ----------- QUERY -----------
+
+message GetSellerByIdRequest {
+  string id = 1;
+}
+
+message GetSellerByUserIdRequest {
+  string user_id = 1;
+}
+
+// ----------- SERVICE -----------
+
+service SellerService {
+  rpc GetSellerByID(GetSellerByIdRequest) returns (Seller);
+  rpc GetSellerByUserID(GetSellerByUserIdRequest) returns (Seller);
+}

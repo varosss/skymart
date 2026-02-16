@@ -1,13 +1,17 @@
 package port
 
+import (
+	"clirzy/order/internal/domain/valueobject"
+	"context"
+)
+
 type ProductDTO struct {
-	ID          string
-	SellerID    string
-	Amount      int64
-	Currency    string
+	ID          valueobject.ProductID
+	SellerID    valueobject.SellerID
+	Price       valueobject.Money
 	IsPublished bool
 }
 
 type ProductGateway interface {
-	GetProducts(productIDs []string) ([]ProductDTO, error)
+	GetProducts(ctx context.Context, productIDs []valueobject.ProductID) ([]*ProductDTO, error)
 }

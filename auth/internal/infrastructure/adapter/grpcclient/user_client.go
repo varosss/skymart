@@ -19,14 +19,19 @@ func NewUserServiceClient(conn *grpc.ClientConn) *UserServiceClient {
 	}
 }
 
-func (c *UserServiceClient) FindByEmail(ctx context.Context, email string) (*port.UserDTO, error) {
+func (c *UserServiceClient) GetByEmail(ctx context.Context, email string) (*port.UserDTO, error) {
 	user, err := c.client.GetUserByEmail(ctx, &pb.GetUserByEmailRequest{Email: email})
 	if err != nil {
 		return nil, err
 	}
 
+	parsedUserID, err := valueobject.ParseUserID(user.Id)
+	if err != nil {
+		return nil, err
+	}
+
 	return &port.UserDTO{
-		ID:           user.Id,
+		ID:           parsedUserID,
 		Email:        user.Email,
 		PasswordHash: user.PasswordHash,
 	}, nil
@@ -38,8 +43,13 @@ func (c *UserServiceClient) GetByID(ctx context.Context, userID valueobject.User
 		return nil, err
 	}
 
+	parsedUserID, err := valueobject.ParseUserID(user.Id)
+	if err != nil {
+		return nil, err
+	}
+
 	return &port.UserDTO{
-		ID:           user.Id,
+		ID:           parsedUserID,
 		Email:        user.Email,
 		PasswordHash: user.PasswordHash,
 	}, nil
@@ -51,7 +61,12 @@ func (c *UserServiceClient) RegisterUser(ctx context.Context, email string, pass
 		return nil, err
 	}
 
+	parsedUserID, err := valueobject.ParseUserID(resp.UserId)
+	if err != nil {
+		return nil, err
+	}
+
 	return &port.UserDTO{
-		ID: resp.UserId,
+		ID: parsedUserID,
 	}, nil
 }

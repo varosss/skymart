@@ -9,9 +9,8 @@ import (
 )
 
 type PayInvoiceCommand struct {
-	InvoiceID string
-	Amount    int64
-	Currency  string
+	InvoiceID valueobject.InvoiceID
+	Money     valueobject.Money
 }
 
 type PayInvoiceUseCase struct {
@@ -32,12 +31,7 @@ func (uc *PayInvoiceUseCase) Execute(
 	cmd PayInvoiceCommand,
 ) error {
 
-	invoiceID, err := valueobject.ParseInvoiceID(cmd.InvoiceID)
-	if err != nil {
-		return domain.ErrInvalidInvoiceID
-	}
-
-	invoice, err := uc.invoices.FindByID(ctx, invoiceID)
+	invoice, err := uc.invoices.FindByID(ctx, cmd.InvoiceID)
 	if err != nil {
 		return err
 	}
@@ -45,8 +39,8 @@ func (uc *PayInvoiceUseCase) Execute(
 		return domain.ErrInvoiceNotFound
 	}
 
-	if invoice.Total().Amount() != cmd.Amount ||
-		invoice.Total().Currency() != cmd.Currency {
+	if invoice.Total().Amount() != cmd.Money.Amount() ||
+		invoice.Total().Currency() != cmd.Money.Currency() {
 		return domain.ErrInvalidPaymentAmount
 	}
 

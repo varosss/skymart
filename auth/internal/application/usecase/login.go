@@ -54,12 +54,9 @@ func (uc *LoginUseCase) Execute(
 	ctx context.Context,
 	cmd LoginCommand,
 ) (*LoginResult, error) {
-	user, err := uc.users.FindByEmail(ctx, cmd.Email)
+	user, err := uc.users.GetByEmail(ctx, cmd.Email)
 	if err != nil {
 		return nil, err
-	}
-	if user == nil {
-		return nil, domain.ErrInvalidCredentials
 	}
 
 	if !uc.passwords.Compare(user.PasswordHash, cmd.Password) {
@@ -68,24 +65,19 @@ func (uc *LoginUseCase) Execute(
 
 	now := uc.clock.Now()
 
-	userID, err := valueobject.ParseUserID(user.ID)
+	roles, err := uc.roles.GetRoles(ctx, user.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	roles, err := uc.roles.GetRoles(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
-
-	accessJWT, err := uc.signer.SignAccess(userID, roles, now)
+	accessJWT, err := uc.signer.SignAccess(user.ID, roles, now)
 	if err != nil {
 		return nil, err
 	}
 
 	refresh := entity.NewRefreshToken(
 		valueobject.NewTokenID(),
-		userID,
+		user.ID,
 		now.Add(uc.refreshTTL),
 	)
 
@@ -93,7 +85,7 @@ func (uc *LoginUseCase) Execute(
 		return nil, err
 	}
 
-	refreshJWT, err := uc.signer.SignRefresh(refresh.ID, userID, now)
+	refreshJWT, err := uc.signer.SignRefresh(refresh.ID, user.ID, now)
 	if err != nil {
 		return nil, err
 	}

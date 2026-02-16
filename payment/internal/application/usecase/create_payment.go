@@ -11,7 +11,7 @@ import (
 )
 
 type CreatePaymentCommand struct {
-	InvoiceID     string
+	InvoiceID     valueobject.InvoiceID
 	CustomerEmail string
 	PaymentMethod string
 	ReturnURL     string
@@ -60,12 +60,7 @@ func (uc *CreatePaymentUseCase) Execute(
 	ctx context.Context,
 	cmd CreatePaymentCommand,
 ) (*CreatePaymentResult, error) {
-	invoiceID, err := valueobject.ParseInvoiceID(cmd.InvoiceID)
-	if err != nil {
-		return nil, domain.ErrInvalidInvoiceID
-	}
-
-	payment, err := uc.payments.FindByInvoiceID(ctx, invoiceID)
+	payment, err := uc.payments.FindByInvoiceID(ctx, cmd.InvoiceID)
 	if err != nil {
 		return nil, err
 	}
@@ -73,15 +68,18 @@ func (uc *CreatePaymentUseCase) Execute(
 		return nil, domain.ErrPaymentAlreadyExists
 	}
 
-	invoice, err := uc.billing.GetInvoiceByID(ctx, invoiceID)
+	invoice, err := uc.billing.GetInvoiceByID(ctx, cmd.InvoiceID)
 	if err != nil {
-		return nil, fmt.Errorf("get invoice %s: %w", invoiceID, err)
+		return nil, fmt.Errorf("get invoice %s: %w", cmd.InvoiceID.String(), err)
 	}
 
-	amount := valueobject.NewMoney(invoice.Amount, invoice.Currency)
+	amount, err := valueobject.NewMoney(invoice.Amount, invoice.Currency)
+	if err != nil {
+		return nil, err
+	}
 
 	payment, err = entity.NewPayment(
-		invoiceID,
+		cmd.InvoiceID,
 		amount,
 	)
 	if err != nil {
@@ -94,7 +92,7 @@ func (uc *CreatePaymentUseCase) Execute(
 			PaymentID:     payment.ID().String(),
 			Amount:        amount.Amount(),
 			Currency:      amount.Currency(),
-			Description:   "Invoice #" + cmd.InvoiceID,
+			Description:   "Invoice #" + cmd.InvoiceID.String(),
 			CustomerEmail: cmd.CustomerEmail,
 			PaymentMethod: cmd.PaymentMethod,
 			ReturnURL:     cmd.ReturnURL,

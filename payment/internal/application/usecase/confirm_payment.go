@@ -9,7 +9,7 @@ import (
 )
 
 type ConfirmPaymentCommand struct {
-	PaymentID string
+	PaymentID valueobject.PaymentID
 }
 
 type ConfirmPaymentUseCase struct {
@@ -32,12 +32,7 @@ func (uc *ConfirmPaymentUseCase) Execute(
 	cmd ConfirmPaymentCommand,
 ) error {
 
-	paymentID, err := valueobject.ParsePaymentID(cmd.PaymentID)
-	if err != nil {
-		return domain.ErrInvalidPaymentID
-	}
-
-	payment, err := uc.payments.FindByID(ctx, paymentID)
+	payment, err := uc.payments.FindByID(ctx, cmd.PaymentID)
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"clirzy/seller/internal/domain"
 	"clirzy/seller/internal/domain/entity"
 	"clirzy/seller/internal/domain/port"
 	"clirzy/seller/internal/domain/valueobject"
@@ -10,7 +9,7 @@ import (
 )
 
 type CreateSellerCommand struct {
-	UserID string
+	UserID valueobject.UserID
 }
 
 type CreateSellerUseCase struct {
@@ -26,12 +25,7 @@ func NewCreateSellerUseCase(
 }
 
 func (uc *CreateSellerUseCase) Execute(ctx context.Context, cmd CreateSellerCommand) (*entity.Seller, error) {
-	userID, err := valueobject.ParseUserID(cmd.UserID)
-	if err != nil {
-		return nil, domain.ErrInvalidUserID
-	}
-
-	seller, err := uc.sellers.FindByUserID(ctx, userID)
+	seller, err := uc.sellers.FindByUserID(ctx, cmd.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +34,7 @@ func (uc *CreateSellerUseCase) Execute(ctx context.Context, cmd CreateSellerComm
 		return nil, errors.New("seller already exists")
 	}
 
-	seller = entity.NewSeller(userID)
+	seller = entity.NewSeller(cmd.UserID)
 	if err := uc.sellers.Save(ctx, seller); err != nil {
 		return nil, err
 	}

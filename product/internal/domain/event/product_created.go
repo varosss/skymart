@@ -15,8 +15,8 @@ type ProductCreated struct {
 func NewProductCreated(
 	productID valueobject.ProductID,
 	sellerID valueobject.SellerID,
-) ProductCreated {
-	return ProductCreated{
+) *ProductCreated {
+	return &ProductCreated{
 		eventID:    valueobject.NewEventID(),
 		productID:  productID,
 		sellerID:   sellerID,
@@ -24,30 +24,44 @@ func NewProductCreated(
 	}
 }
 
-func (e ProductCreated) ID() string {
+func ProductCreatedFromPrimitives(
+	eventID valueobject.EventID,
+	productID valueobject.ProductID,
+	sellerID valueobject.SellerID,
+	occurredAt time.Time,
+) *ProductCreated {
+	return &ProductCreated{
+		eventID:    eventID,
+		productID:  productID,
+		sellerID:   sellerID,
+		occurredAt: occurredAt,
+	}
+}
+
+func (e *ProductCreated) ID() string {
 	return e.eventID.String()
 }
 
-func (ProductCreated) Type() string {
+func (*ProductCreated) Type() string {
 	return "product.created"
 }
 
-func (e ProductCreated) AggregateID() string {
+func (e *ProductCreated) AggregateID() string {
 	return e.productID.String()
 }
 
-func (ProductCreated) AggregateType() string {
+func (*ProductCreated) AggregateType() string {
 	return "product"
 }
 
-func (e ProductCreated) OccurredAt() time.Time {
+func (e *ProductCreated) OccurredAt() time.Time {
 	return e.occurredAt
 }
 
-func (e ProductCreated) ProductID() valueobject.ProductID {
+func (e *ProductCreated) ProductID() valueobject.ProductID {
 	return e.productID
 }
 
-func (e ProductCreated) SellerID() valueobject.SellerID {
+func (e *ProductCreated) SellerID() valueobject.SellerID {
 	return e.sellerID
 }

@@ -29,6 +29,23 @@ func NewInvoicePaid(
 	}
 }
 
+func InvoicePaidFromPrimitives(
+	eventID valueobject.EventID,
+	invoiceID valueobject.InvoiceID,
+	buyerID valueobject.BuyerID,
+	total valueobject.Money,
+	occurredAt time.Time,
+) *InvoicePaid {
+	return &InvoicePaid{
+		eventID:    eventID,
+		invoiceID:  invoiceID,
+		buyerID:    buyerID,
+		amount:     total.Amount(),
+		currency:   total.Currency(),
+		occurredAt: occurredAt,
+	}
+}
+
 func (e *InvoicePaid) ID() string {
 	return e.eventID.String()
 }

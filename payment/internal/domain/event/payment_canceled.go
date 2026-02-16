@@ -15,8 +15,8 @@ type PaymentCanceled struct {
 func NewPaymentCanceled(
 	paymentID valueobject.PaymentID,
 	invoiceID valueobject.InvoiceID,
-) PaymentCanceled {
-	return PaymentCanceled{
+) *PaymentCanceled {
+	return &PaymentCanceled{
 		eventID:    valueobject.NewEventID(),
 		paymentID:  paymentID,
 		invoiceID:  invoiceID,
@@ -24,30 +24,44 @@ func NewPaymentCanceled(
 	}
 }
 
-func (e PaymentCanceled) ID() string {
+func PaymentCanceledFromPrimitives(
+	eventID valueobject.EventID,
+	paymentID valueobject.PaymentID,
+	invoiceID valueobject.InvoiceID,
+	occurredAt time.Time,
+) *PaymentCanceled {
+	return &PaymentCanceled{
+		eventID:    eventID,
+		paymentID:  paymentID,
+		invoiceID:  invoiceID,
+		occurredAt: occurredAt,
+	}
+}
+
+func (e *PaymentCanceled) ID() string {
 	return e.eventID.String()
 }
 
-func (e PaymentCanceled) Type() string {
+func (e *PaymentCanceled) Type() string {
 	return "payment.cancelled"
 }
 
-func (e PaymentCanceled) AggregateID() string {
+func (e *PaymentCanceled) AggregateID() string {
 	return e.eventID.String()
 }
 
-func (e PaymentCanceled) AggregateType() string {
+func (e *PaymentCanceled) AggregateType() string {
 	return "payment"
 }
 
-func (e PaymentCanceled) OccurredAt() time.Time {
+func (e *PaymentCanceled) OccurredAt() time.Time {
 	return e.occurredAt
 }
 
-func (e PaymentCanceled) PaymentID() valueobject.PaymentID {
+func (e *PaymentCanceled) PaymentID() valueobject.PaymentID {
 	return e.paymentID
 }
 
-func (e PaymentCanceled) InvoiceID() valueobject.InvoiceID {
+func (e *PaymentCanceled) InvoiceID() valueobject.InvoiceID {
 	return e.invoiceID
 }

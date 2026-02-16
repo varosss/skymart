@@ -9,7 +9,7 @@ import (
 )
 
 type CancelPaymentCommand struct {
-	PaymentID string
+	PaymentID valueobject.PaymentID
 }
 
 type CancelPaymentUseCase struct {
@@ -35,12 +35,7 @@ func (uc *CancelPaymentUseCase) Execute(
 	cmd CancelPaymentCommand,
 ) error {
 
-	paymentID, err := valueobject.ParsePaymentID(cmd.PaymentID)
-	if err != nil {
-		return domain.ErrInvalidPaymentID
-	}
-
-	payment, err := uc.payments.FindByID(ctx, paymentID)
+	payment, err := uc.payments.FindByID(ctx, cmd.PaymentID)
 	if err != nil {
 		return err
 	}
@@ -56,7 +51,7 @@ func (uc *CancelPaymentUseCase) Execute(
 		return err
 	}
 
-	if err := uc.provider.CancelPayment(ctx, paymentID.String()); err != nil {
+	if err := uc.provider.CancelPayment(ctx, cmd.PaymentID.String()); err != nil {
 		return err
 	}
 

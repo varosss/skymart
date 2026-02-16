@@ -30,5 +30,13 @@ func (s *AuthServiceServer) ValidateAccessToken(ctx context.Context, req *pb.Val
 		return nil, domain.ErrInvalidToken
 	}
 
-	return &pb.ValidateAccessTokenResponse{UserId: result.UserID.String()}, nil
+	roles := make([]string, len(result.Roles))
+	for i, role := range result.Roles {
+		roles[i] = role.String()
+	}
+
+	return &pb.ValidateAccessTokenResponse{
+		UserId: result.UserID.String(),
+		Roles:  roles,
+	}, nil
 }

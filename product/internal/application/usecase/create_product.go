@@ -10,21 +10,20 @@ import (
 )
 
 type CreateProductCommand struct {
-	SellerID    string
+	UserID      valueobject.UserID
 	Title       string
 	Description string
-	Price       int64
-	Currency    string
+	Money       valueobject.Money
 }
 
 type CreateProductUseCase struct {
-	sellers  aport.SellerQuery
+	sellers  aport.SellerGateway
 	products port.ProductRepo
 	bus      aport.EventBus
 }
 
 func NewCreateProductUseCase(
-	sellers aport.SellerQuery,
+	sellers aport.SellerGateway,
 	products port.ProductRepo,
 	bus aport.EventBus,
 ) *CreateProductUseCase {
@@ -39,34 +38,20 @@ func (uc *CreateProductUseCase) Execute(
 	ctx context.Context,
 	cmd CreateProductCommand,
 ) (valueobject.ProductID, error) {
-
-	sellerID, err := valueobject.ParseSellerID(cmd.SellerID)
-	if err != nil {
-		return "", domain.ErrInvalidSellerID
-	}
-
-	exists, err := uc.sellers.Exists(ctx, sellerID)
+	seller, err := uc.sellers.GetByUserID(ctx, cmd.UserID)
 	if err != nil {
 		return "", err
 	}
-	if !exists {
-		return "", domain.ErrSellerNotFound
-	}
-
-	active, err := uc.sellers.IsActive(ctx, sellerID)
-	if err != nil {
-		return "", err
-	}
-	if !active {
+	if !seller.IsActive {
 		return "", domain.ErrSellerInactive
 	}
 
 	product := entity.NewProduct(
 		valueobject.NewProductID(),
-		sellerID,
+		seller.ID,
 		cmd.Title,
 		cmd.Description,
-		valueobject.NewMoney(cmd.Price, cmd.Currency),
+		cmd.Money,
 		valueobject.StatusDraft,
 	)
 

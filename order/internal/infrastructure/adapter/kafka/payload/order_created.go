@@ -2,6 +2,7 @@ package payload
 
 type OrderCreatedItem struct {
 	ProductID string `json:"product_id"`
+	SellerID  string `json:"seller_id"`
 	Amount    int64  `json:"amount"`
 	Currency  string `json:"currency"`
 	Qty       int64  `json:"qty"`

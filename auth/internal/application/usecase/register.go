@@ -37,16 +37,11 @@ func (uc *RegisterUseCase) Execute(
 		return nil, err
 	}
 
-	userID, err := valueobject.ParseUserID(user.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := uc.roles.AssignRole(ctx, userID, valueobject.UserRole); err != nil {
+	if err := uc.roles.AssignRole(ctx, user.ID, valueobject.UserRole); err != nil {
 		return nil, err
 	}
 
 	return &RegisterResult{
-		UserID: userID,
+		UserID: user.ID,
 	}, nil
 }

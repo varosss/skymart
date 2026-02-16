@@ -1,6 +1,7 @@
 package port
 
 import (
+	"clirzy/user/internal/domain/valueobject"
 	"context"
 )
 
@@ -11,6 +12,6 @@ type UserDTO struct {
 }
 
 type UserQuery interface {
-	GetByEmail(ctx context.Context, email string) (*UserDTO, error)
-	GetByID(ctx context.Context, userID string) (*UserDTO, error)
+	GetByEmail(ctx context.Context, email valueobject.Email) (*UserDTO, error)
+	GetByID(ctx context.Context, userID valueobject.UserID) (*UserDTO, error)
 }

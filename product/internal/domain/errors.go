@@ -3,6 +3,7 @@ package domain
 import "errors"
 
 var (
+	ErrInvalidUserID                  = errors.New("invalid user id")
 	ErrInvalidSellerID                = errors.New("invalid seller id")
 	ErrInvalidProductID               = errors.New("invalid product id")
 	ErrSellerNotFound                 = errors.New("seller not found")

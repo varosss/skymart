@@ -13,6 +13,7 @@ type ValidateAccessTokenCommand struct {
 
 type ValidateAccessTokenResult struct {
 	UserID valueobject.UserID
+	Roles  []valueobject.RoleCode
 }
 
 type ValidateAccessTokenUseCase struct {
@@ -37,5 +38,6 @@ func (uc *ValidateAccessTokenUseCase) Execute(
 
 	return &ValidateAccessTokenResult{
 		UserID: claims.UserID,
+		Roles:  claims.Roles,
 	}, nil
 }

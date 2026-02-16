@@ -2,9 +2,11 @@ package event
 
 import (
 	domevent "clirzy/payment/internal/domain/event"
+	"clirzy/payment/internal/domain/valueobject"
 	"clirzy/payment/internal/infrastructure/adapter/kafka/payload"
 	pkgkafka "clirzy/pkg/kafka"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -20,7 +22,7 @@ func (m *EventMapper) ToMessage(
 
 	switch ev := e.(type) {
 
-	case domevent.PaymentCreated:
+	case *domevent.PaymentCreated:
 		return &pkgkafka.Message{
 			EventID:       ev.ID(),
 			EventType:     ev.Type(),
@@ -35,7 +37,7 @@ func (m *EventMapper) ToMessage(
 			},
 		}, nil
 
-	case domevent.PaymentSucceeded:
+	case *domevent.PaymentSucceeded:
 		return &pkgkafka.Message{
 			EventID:       ev.ID(),
 			EventType:     ev.Type(),
@@ -50,7 +52,7 @@ func (m *EventMapper) ToMessage(
 			},
 		}, nil
 
-	case domevent.PaymentCanceled:
+	case *domevent.PaymentCanceled:
 		return &pkgkafka.Message{
 			EventID:       ev.ID(),
 			EventType:     ev.Type(),
@@ -65,5 +67,81 @@ func (m *EventMapper) ToMessage(
 
 	default:
 		return nil, errors.New("unknown domain event")
+	}
+}
+
+func (m *EventMapper) FromMessage(
+	msg pkgkafka.Message,
+) (domevent.Event, error) {
+	switch msg.EventType {
+
+	case "payment.created":
+		data, ok := msg.Payload.(payload.PaymentCreatedPayload)
+		if !ok {
+			return nil, fmt.Errorf("invalid payload for event %s", msg.EventType)
+		}
+
+		money, err := valueobject.NewMoney(data.Amount, data.Currency)
+		if err != nil {
+			return nil, err
+		}
+
+		occurredAt, err := time.Parse(time.RFC3339, msg.OccurredAt)
+		if err != nil {
+			return nil, err
+		}
+
+		return domevent.PaymentCreatedFromPrimitives(
+			valueobject.EventID(msg.EventID),
+			valueobject.PaymentID(data.PaymentID),
+			valueobject.InvoiceID(data.InvoiceID),
+			money,
+			occurredAt,
+		), nil
+
+	case "payment.succeeded":
+		data, ok := msg.Payload.(payload.PaymentSucceededPayload)
+		if !ok {
+			return nil, fmt.Errorf("invalid payload for event %s", msg.EventType)
+		}
+
+		money, err := valueobject.NewMoney(data.Amount, data.Currency)
+		if err != nil {
+			return nil, err
+		}
+
+		occurredAt, err := time.Parse(time.RFC3339, msg.OccurredAt)
+		if err != nil {
+			return nil, err
+		}
+
+		return domevent.PaymentSucceededFromPrimitives(
+			valueobject.EventID(msg.EventID),
+			valueobject.PaymentID(data.PaymentID),
+			valueobject.InvoiceID(data.InvoiceID),
+			money,
+			occurredAt,
+		), nil
+
+	case "payment.canceled":
+		data, ok := msg.Payload.(payload.PaymentCanceledPayload)
+		if !ok {
+			return nil, fmt.Errorf("invalid payload for event %s", msg.EventType)
+		}
+
+		occurredAt, err := time.Parse(time.RFC3339, msg.OccurredAt)
+		if err != nil {
+			return nil, err
+		}
+
+		return domevent.PaymentCanceledFromPrimitives(
+			valueobject.EventID(msg.EventID),
+			valueobject.PaymentID(data.PaymentID),
+			valueobject.InvoiceID(data.InvoiceID),
+			occurredAt,
+		), nil
+
+	default:
+		return nil, errors.New("unknown event type")
 	}
 }

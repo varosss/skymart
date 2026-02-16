@@ -19,8 +19,8 @@ func NewProductInfoUpdated(
 	sellerID valueobject.SellerID,
 	title string,
 	description string,
-) ProductInfoUpdated {
-	return ProductInfoUpdated{
+) *ProductInfoUpdated {
+	return &ProductInfoUpdated{
 		eventID:     valueobject.NewEventID(),
 		productID:   productID,
 		sellerID:    sellerID,
@@ -30,38 +30,56 @@ func NewProductInfoUpdated(
 	}
 }
 
-func (e ProductInfoUpdated) ID() string {
+func ProductInfoUpdatedFromPrimitives(
+	eventID valueobject.EventID,
+	productID valueobject.ProductID,
+	sellerID valueobject.SellerID,
+	title string,
+	description string,
+	occurredAt time.Time,
+) *ProductInfoUpdated {
+	return &ProductInfoUpdated{
+		eventID:     eventID,
+		productID:   productID,
+		sellerID:    sellerID,
+		title:       title,
+		description: description,
+		occurredAt:  occurredAt,
+	}
+}
+
+func (e *ProductInfoUpdated) ID() string {
 	return e.eventID.String()
 }
 
-func (ProductInfoUpdated) Type() string {
+func (*ProductInfoUpdated) Type() string {
 	return "product.info_updated"
 }
 
-func (e ProductInfoUpdated) AggregateID() string {
+func (e *ProductInfoUpdated) AggregateID() string {
 	return e.productID.String()
 }
 
-func (ProductInfoUpdated) AggregateType() string {
+func (*ProductInfoUpdated) AggregateType() string {
 	return "product"
 }
 
-func (e ProductInfoUpdated) OccurredAt() time.Time {
+func (e *ProductInfoUpdated) OccurredAt() time.Time {
 	return e.occurredAt
 }
 
-func (e ProductInfoUpdated) ProductID() valueobject.ProductID {
+func (e *ProductInfoUpdated) ProductID() valueobject.ProductID {
 	return e.productID
 }
 
-func (e ProductInfoUpdated) SellerID() valueobject.SellerID {
+func (e *ProductInfoUpdated) SellerID() valueobject.SellerID {
 	return e.sellerID
 }
 
-func (e ProductInfoUpdated) Title() string {
+func (e *ProductInfoUpdated) Title() string {
 	return e.title
 }
 
-func (e ProductInfoUpdated) Description() string {
+func (e *ProductInfoUpdated) Description() string {
 	return e.description
 }

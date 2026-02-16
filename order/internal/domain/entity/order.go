@@ -28,7 +28,7 @@ func NewOrder(
 	var totalAmount int64
 	var currency string
 
-	snapshots := make([]event.OrderItemSnapshot, len(items))
+	snapshots := make([]*event.OrderItemSnapshot, len(items))
 	for i, item := range items {
 		if i == 0 {
 			currency = item.price.Currency()
@@ -50,7 +50,10 @@ func NewOrder(
 		)
 	}
 
-	total := valueobject.NewMoney(totalAmount, currency)
+	total, err := valueobject.NewMoney(totalAmount, currency)
+	if err != nil {
+		return nil, err
+	}
 
 	o := &Order{
 		id:      valueobject.NewOrderID(),
