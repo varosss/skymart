@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package product.v1;
+
+option go_package = "clirzy/product/proto;proto";
+
+// ---------- COMMON ----------
+
+message Product {
+  string id = 1;
+  string sellerId = 2;
+  int64 price = 3;
+  string currency = 4;
+  bool is_published = 5;
+}
+
+// ----------- QUERY -----------
+
+message GetProductsRequest {
+  repeated string ids = 1;
+}
+
+message GetProductsResponse {
+  repeated Product products = 1;
+}
+
+// ---------- SERVICE ----------
+
+service ProductService {
+  rpc GetProducts(GetProductsRequest) returns (GetProductsResponse);
+}

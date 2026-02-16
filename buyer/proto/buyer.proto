@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package buyer.v1;
+
+option go_package = "clirzy/buyer/proto;proto";
+
+// ---------- COMMON ----------
+
+message Buyer {
+  string id = 1;
+  bool is_active = 2;
+}
+
+// ----------- QUERY -----------
+
+message GetBuyerByIdRequest {
+  string id = 1;
+}
+
+// ---------- SERVICE ----------
+
+service BuyerService {
+  rpc GetBuyerByID(GetBuyerByIdRequest) returns (Buyer);
+}

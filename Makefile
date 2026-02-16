@@ -37,7 +37,7 @@ build.all: $(SERVICES:%=build.%)
 build.%:
 	@echo "🚀 Building service: $*"
 	@docker build \
-		-f ./services/$*/Dockerfile \
+		-f ./$*/Dockerfile \
 		--build-arg SERVICE=$* \
 		-t $(REGISTRY):clirzy-$*-$(BUILD_DATE) \
 		-t $(REGISTRY):clirzy-$*-latest \
@@ -71,14 +71,14 @@ docker.migrate.%.down:
 
 migrate.%.create:
 	@echo "🛠 Creating migration for $* with name: $(name)"
-	MSYS_NO_PATHCONV=1 migrate create -ext sql -dir "./services/$*/migrations" $(name)
+	MSYS_NO_PATHCONV=1 migrate create -ext sql -dir "./$*/migrations" $(name)
 
 
 # ------------------------------------------------
 # gRPC commands
 # ------------------------------------------------
 proto.%:
-	protoc -I services/$*/proto \
-	--go_out=paths=source_relative:services/$*/proto \
-	--go-grpc_out=paths=source_relative:services/$*/proto \
-	services/$*/proto/$*.proto
+	protoc -I $*/proto \
+	--go_out=paths=source_relative:$*/proto \
+	--go-grpc_out=paths=source_relative:$*/proto \
+	$*/proto/$*.proto
