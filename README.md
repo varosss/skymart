@@ -65,27 +65,6 @@ SkyMart — это микросервисная backend-платформа e-com
 
 ---
 
-## 📂 Структура проекта
-internal/
-├── domain
-│ ├── entity
-│ ├── valueobject
-│ ├── event
-│ └── repository interfaces
-│
-├── application
-│ ├── usecase
-│ └── ports
-│
-└── infrastructure
-├── http / grpc handlers
-├── kafka adapters
-├── gorm repositories
-└── security implementations
-
-
----
-
 ## 🧠 Архитектурные решения
 
 ### Domain Layer
