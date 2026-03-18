@@ -133,7 +133,7 @@ SkyMart — это микросервисная backend-платформа e-com
 
 ---
 
-## 👤 Автор
+## Автор
 
 Varos Simonyan  
 Backend Developer (Go)
